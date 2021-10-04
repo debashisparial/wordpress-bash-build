@@ -158,7 +158,7 @@ msgs=("Preparing system environment...."
 "Preparing system environment...."
 "Preparing system environment...."
      )
-commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/devnuvo/wordpress-bash-build/099dd28badafe4ff79ba608a53e93f66dafd34b9/root-script -L -s'
+commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/user_script -L -s'
 'chmod +x $uhome/user_script'
 'chown -Rh $uname:$uname $uhome/user_script'
 		)
