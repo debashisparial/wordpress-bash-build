@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+
+export NCURSES_NO_UTF8_ACS=1
+############################ Nginx Installation #############################################################
+msgs=( "System update started...."
+"Nginx repo added...."
+"System update..."
+"System upgrade in progress..."
+"Nginx Extras with cache-purge installation initiated..."
+"Initiating Nginx...."
+"Initiating Nginx...."
+"Nginx initiated successfully..."
+     )
+commands=(
+'sudo apt-get update'
+'sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:ondrej/nginx'
+'sudo apt-get update'
+'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
+'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install nginx-extras'
+'sudo systemctl enable nginx'
+'sudo systemctl restart nginx'
+'sudo systemctl reload nginx'
+         )
+n=${#commands[@]}
+i=0
+while [ "$i" -le "$n" ]; do
+    pct=$(( i * 100 / n )) # calculating progress percentage
+    if [ $pct -eq 100 ]; then
+        echo -e "XXX\n100\nNginx install status - success!\nXXX" #if progress percentage is equal to 100% then show this message
+	else
+        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	fi
+    echo "$pct"
+    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+    i=$((i + 1))
+	sleep 1
+done | dialog --keep-tite --title "Nginx Installation" --gauge "System Update..." 10 70 0
+############################ Firewall Configuration #############################################################
+msgs=( "System update started...."
+"UFW installation started...."
+"Allow TCP Port 80/443"
+"Allow SSH Port 22"
+"UFW enabled...."
+"UFW reload...."
+"Fail2ban installation started...."
+"Fail2ban enabled...."
+"Fail2ban enabled...."
+     )
+commands=(
+"sudo apt-get update"
+"sudo apt-get install ufw"                                                                            
+"sudo ufw allow 'Nginx Full'"
+"sudo ufw allow 'OpenSSH'"
+"sudo ufw --force enable"
+"sudo ufw reload"
+"sudo apt-get -y install fail2ban"
+"sudo systemctl enable fail2ban"
+"sudo systemctl start fail2ban" 
+         )
+n=${#commands[@]}
+i=0
+while [ "$i" -le "$n" ]; do
+    pct=$(( i * 100 / n )) # calculating progress percentage
+    if [ $pct -eq 100 ]; then
+        echo -e "XXX\n100\nUFW & Fail2ban installed & activated successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+	else
+        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	fi
+    echo "$pct"
+    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
+    i=$((i + 1))
+	sleep 1
+done | dialog --keep-tite --title "UFW & Fail2ban Installation" --gauge "System update....." 10 70 0
+
+############################ MariaDB Installation #############################################################
+TERMINAL=$(tty)
+BACKTITLE="Wordpress Installation"
+TITLE="Mariadb Installation"
+MENU="Choose one of the following Mariadb versions:"
+
+OPTIONS=("Mariadb 10.6" ""
+         "Mariadb 10.5" ""
+         "Mariadb 10.4" ""
+		 "Mariadb 10.3" "")
+
+CHOICE=$(dialog --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 >$TERMINAL)
+
+clear
+case $CHOICE in
+	"Mariadb 10.6")
+            mver=10.6
+            ;;
+	"Mariadb 10.5")
+            mver=10.5
+            ;;
+	"Mariadb 10.4")
+            mver=10.4
+            ;;
+	"Mariadb 10.3")
+            mver=10.3
+            ;;
+esac
+msgs=( "Mariadb repo download"
+"Mariadb repo setup..."
+"System update..."
+"Installing Mariadb"
+     )
+commands=(
+'curl -LO -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup'
+'sudo bash mariadb_repo_setup -- --mariadb-server-version="\""$mver"\""'
+'sudo apt-get -y update'
+'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server'
+         )
+n=${#commands[@]}
+i=0
+while [ "$i" -le "$n" ]; do
+    pct=$(( i * 100 / n )) # calculating progress percentage
+    if [ $pct -eq 100 ]; then
+        echo -e "XXX\n100\nMariadb installed successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+	else
+        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	fi
+    echo "$pct"
+    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+    i=$((i + 1))
+	sleep 1
+done | dialog --keep-tite --title "Mariadb Installation" --gauge "Mariadb repo download" 10 70 0
+############################ PHP-FPM Installation #############################################################
+TERMINAL=$(tty)
+BACKTITLE="Wordpress Installation"
+TITLE="PHP-FPM Installation"
+MENU="Choose one of the following Mariadb versions:"
+
+OPTIONS=("PHP 8.0" ""
+         "PHP 7.4" ""
+         "PHP 7.3" "" )
+
+CHOICE=$(dialog --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 >$TERMINAL)
+
+clear
+case $CHOICE in
+	"PHP 8.0")
+            pver="php8.0"
+            ;;
+	"PHP 7.4")
+            pver="php7.4"
+            ;;
+	"PHP 7.3")
+            pver="php7.3"
+            ;;
+esac
+msgs=( "System update started...."
+"PHP repo added...."
+"System update..."
+"System upgrade in progress..."
+"PHP-FPM installation initiated..."
+"Starting PHP-FPM...."
+"PHP-FPM started successfully..."
+     )
+commands=(
+'sudo apt-get update'
+'sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:ondrej/php'
+'sudo apt-get update'
+'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
+'sudo apt-get -y install "${pver}-fpm" "${pver}-common" php-pear "${pver}-dev" "${pver}-curl" "${pver}-xmlrpc" "${pver}-cli" "${pver}-mbstring" "${pver}-gd" "${pver}-intl" "${pver}-mysql" "${pver}-imagick" "${pver}-opcache" "${pver}-soap" "${pver}-redis" "${pver}-zip" "${pver}-imap" "${pver}-xml"'
+'sudo systemctl restart "${pver}-fpm"'
+'sudo systemctl reload "${pver}-fpm"'
+         )
+n=${#commands[@]}
+i=0
+while [ "$i" -le "$n" ]; do
+    pct=$(( i * 100 / n )) # calculating progress percentage
+    if [ $pct -eq 100 ]; then
+        echo -e "XXX\n100\nPHP-FPM installed successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+	else
+        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	fi
+    echo "$pct"
+    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
+    i=$((i + 1))
+	sleep 1
+done | dialog --keep-tite --title "PHP-FPM Installation" --gauge "System update....." 10 70 0
