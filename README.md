@@ -1,4 +1,4 @@
-# wordpress-bash-build
+# Wordpress Bash Build Interface
 This is a bash script to build wordpress utilizing Nginx, Mariadb and PHP on Ubuntu
 
 **Usage**
