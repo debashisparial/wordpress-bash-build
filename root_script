@@ -5,12 +5,10 @@
 # Wordpress Installation
 
 export NCURSES_NO_UTF8_ACS=1
-{ apt-get -y install dialog
-dialog --create-rc ~/.dialog
-sed -i 's/^#*\use_colors\s.*$/use_colors = OFF/' ~/.dialog
+{ apt-get -y install dialog --keep-tite
 apt-get -y install jq
 } > /dev/null 2>&1
-dialog --keep-tite --title "Welcome" --msgbox "\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 10 70 
+dialog --keep-tite --title "Welcome" --msgbox "\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
 msgs=("System Update...."  
 "System Upgrade...."
      )
@@ -30,16 +28,16 @@ while [ "$i" -le "$n" ]; do
     eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
     i=$((i + 1))
 	sleep 1
-done | dialog --keep-tite --title "System Environment" --gauge "System Update...." 10 70 0
-dialog --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\nHostname addition, hosts file update, Time zone update, Sudo user addition & Add SSH key." 10 70 
+done | dialog --keep-tite --title "System Environment" --gauge "System Update...." 20 100 0
+dialog --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\nHostname addition, hosts file update, Time zone update, Sudo user addition & Add SSH key." 20 100 
 pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	while true; do
-	  fqdn=$(dialog --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 10 70 3>&1 1>&2 2>&3 3>&-)
+	  fqdn=$(dialog --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 20 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$fqdn" ]]; then
-		dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 10 70 
+		dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 20 100 
 		continue
 	  elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
-		dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 10 70
+		dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 20 100
 		continue
 	  fi
 	  
@@ -82,15 +80,15 @@ while [ "$i" -le "$n" ]; do
     eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
     i=$((i + 1))
 	sleep 1
-done | dialog --keep-tite --title "Time Zone Configuration" --gauge "Gathering Time Zone info...." 10 70 0
+done | dialog --keep-tite --title "Time Zone Configuration" --gauge "Gathering Time Zone info...." 20 100 0
 # Adding another sudo user apart from root. Root credentials can be security risk.
 while true; do
-  uname=$(dialog --keep-tite --title "Username" --ok-label "Continue" --nocancel --inputbox "Enter your username" 10 70 3>&1 1>&2 2>&3 3>&-)
+  uname=$(dialog --keep-tite --title "Username" --ok-label "Continue" --nocancel --inputbox "Enter your username" 20 100 3>&1 1>&2 2>&3 3>&-)
   if [[ -z "$uname" ]]; then
-    dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username cannot be empty" 10 70
+    dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username cannot be empty" 20 100
     continue
   elif grep "${uname}" /etc/passwd >/dev/null 2>&1; then
-    dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username exists, use another name" 10 70
+    dialog --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username exists, use another name" 20 100
     continue
   fi
   
@@ -98,7 +96,7 @@ while true; do
 	adduser --gecos "" --disabled-password "$uname" >/dev/null 2>&1
 	break
 done
-pword=$(dialog --keep-tite --title "Password" --ok-label "Continue" --nocancel --inputbox "Enter your password" 10 70 3>&1 1>&2 2>&3 3>&-)
+pword=$(dialog --keep-tite --title "Password" --ok-label "Continue" --nocancel --inputbox "Enter your password" 20 100 3>&1 1>&2 2>&3 3>&-)
 msgs=( "Creating user..."
 "Adding to sudoers list"
 "Disabling sudo passwd prompt"
@@ -120,9 +118,9 @@ while [ "$i" -le "$n" ]; do
     eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
     i=$((i + 1))
 	sleep 1
-done | dialog --keep-tite --title "Adding User" --gauge "Creating user..." 10 70 0
+done | dialog --keep-tite --title "Adding User" --gauge "Creating user..." 20 100 0
 uhome=$(eval echo ~$uname)
-pubkey=$(dialog --keep-tite --title "SSH Key" --ok-label "Continue" --nocancel --inputbox "\nEnter your SSH Pubkey" 10 70 3>&1 1>&2 2>&3 3>&-)
+pubkey=$(dialog --keep-tite --title "SSH Key" --ok-label "Continue" --nocancel --inputbox "\nEnter your SSH Pubkey" 20 100 3>&1 1>&2 2>&3 3>&-)
 msgs=("Creating user's SSH directory..."  
 "SSH directory permission update... "
 "Adding SSH pubkey..."
@@ -152,8 +150,8 @@ while [ "$i" -le "$n" ]; do
     eval "${commands[i]}" > /dev/null 2>&1
     i=$((i + 1))
 	sleep 1
-done | dialog --keep-tite --title "User SSH Configuration" --gauge "\nCreating User's SSH Directory" 10 70 0
-dialog --keep-tite --title "Part II" --msgbox "\nNginx, Mariadb and PHP installation & configuration." 10 70
+done | dialog --keep-tite --title "User SSH Configuration" --gauge "\nCreating User's SSH Directory" 20 100 0
+dialog --keep-tite --title "Part II" --msgbox "\nNginx, Mariadb and PHP installation & configuration." 20 100
 msgs=("Preparing system environment...."
 "Preparing system environment...."
 "Preparing system environment...."
@@ -175,5 +173,5 @@ while [ "$i" -le "$n" ]; do
     eval "${commands[i]}" > /dev/null 2>&1
     i=$((i + 1))
 	sleep 1
-done | dialog --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 10 70 0
-sudo -i -u "$uname" ./user_script
+done | dialog --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 20 100 0
+sudo -i -u "$uname" bash $uhome/user_script
