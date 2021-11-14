@@ -3,6 +3,6 @@ This is a bash script to build wordpress utilizing Nginx, Mariadb and PHP on Ubu
 
 **Usage**
 
-``curl -o https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/root_script -L -s``  
+``curl -LJO -s https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/root_script``  
 ``chmod +x root_script``  
 ``./root_script``
