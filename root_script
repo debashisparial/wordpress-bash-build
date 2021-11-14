@@ -49,7 +49,7 @@ pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	done
 hostname="$(hostname)"
 domain="${hostname%%.*}"
-ip=$(curl -s -X GET https://checkip.amazonaws.com)
+ips=$(curl -s -X GET https://checkip.amazonaws.com)
 #if grep -R "$ips" /etc/hosts; then
 #	sed -i "s/.*$ips.*/$ips $hostname $domain/" /etc/hosts
 #else
