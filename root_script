@@ -7,7 +7,7 @@
 export NCURSES_NO_UTF8_ACS=1
 { apt-get -y install dialog
 dialog --keep-tite --create-rc ~/.dialog
-sed -i 's/^#*\use_colors\s.*$/use_colors = OFF/' ~/.dialog --keep-titerc
+sed -i 's/^#*\use_colors\s.*$/use_colors = OFF/' ~/.dialog
 apt-get -y install jq
 } > /dev/null 2>&1
 dialog --keep-tite --title "Welcome" --msgbox "\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
@@ -49,8 +49,7 @@ pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	done
 hostname="$(hostname)"
 domain="${hostname%%.*}"
-ips=$(ip -o -4 addr show up primary scope global |
-      while read -r num dev fam addr rest; do echo ${addr%/*}; done)
+ip=$(curl -s -X GET https://checkip.amazonaws.com)
 #if grep -R "$ips" /etc/hosts; then
 #	sed -i "s/.*$ips.*/$ips $hostname $domain/" /etc/hosts
 #else
