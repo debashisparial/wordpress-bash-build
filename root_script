@@ -5,7 +5,9 @@
 # Wordpress Installation
 
 export NCURSES_NO_UTF8_ACS=1
-{ apt-get -y install dialog --keep-tite
+{ apt-get -y install dialog
+dialog --keep-tite --create-rc ~/.dialog
+sed -i 's/^#*\use_colors\s.*$/use_colors = OFF/' ~/.dialog --keep-titerc
 apt-get -y install jq
 } > /dev/null 2>&1
 dialog --keep-tite --title "Welcome" --msgbox "\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
