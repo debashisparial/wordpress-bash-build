@@ -119,7 +119,7 @@ mariadb_install() {
 		 "Mariadb 10.4" ""
 		 "Mariadb 10.3" "")
 
-	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 >$TERMINAL)
+	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
 
 	clear
 	case $CHOICE in
