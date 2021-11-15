@@ -8,7 +8,6 @@
 	{ apt-get update
 	apt-get -y install dialog
 	dialog --create-rc ~/.dialogrc
-	sed -i 's/^#*\use_colors\s.*$/use_colors = OFF/' ~/.dialogrc
 	apt-get -y install jq
 	} > /dev/null 2>&1
 	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
