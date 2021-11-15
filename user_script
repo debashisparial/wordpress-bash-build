@@ -276,7 +276,7 @@ phpini_config() {
 	invars=$( echo "$pini" | sed -n '2p' )
 	memlim=$( echo "$pini" | sed -n '3p' )
 	maxfil=$( echo "$pini" | sed -n '4p' )
-	maxpos=$( echo "$pini" | sed -n '2p' )
+	maxpos=$( echo "$pini" | sed -n '5p' )
 	sudo sed -i "/^${maxex}/!s/^;*\(max_execution_time = \).*/\1${maxex}/
 			/^${invars}/!s/^;*\(max_input_vars = \).*/\1${invars}/
 			/^${memlim}/!s/^;*\(memory_limit = \).*/\1${memlim}M/
