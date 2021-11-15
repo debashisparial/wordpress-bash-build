@@ -115,9 +115,9 @@ mariadb_install() {
 	MENU="Choose one of the following Mariadb versions:"
 
 	OPTIONS=("Mariadb 10.6" ""
-			 "Mariadb 10.5" ""
-			 "Mariadb 10.4" ""
-			 "Mariadb 10.3" "")
+		 "Mariadb 10.5" ""
+		 "Mariadb 10.4" ""
+		 "Mariadb 10.3" "")
 
 	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 >$TERMINAL)
 
@@ -143,7 +143,7 @@ mariadb_install() {
 		 )
 	commands=(
 	'curl -LO -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup'
-	'sudo bash mariadb_repo_setup -- --mariadb-server-version="\""$mver"\""'
+	'sudo bash mariadb_repo_setup -- --mariadb-server-version="\""${mver}"\""'
 	'sudo apt-get -y update'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server'
 			 )
@@ -259,11 +259,12 @@ phpini_config() {
 	exec 3>&1
 
 	# Store data to $pini variable
-	pini=$(dialog --cr-wrap --ok-label "Submit" \
-			  --keep-tite \
-			  --title "php.ini configure" \
-			  --nocancel \
-			  --form "Configure php.ini" \
+	pini=$(dialog --cr-wrap \
+		--ok-label "Submit" \
+		--keep-tite \
+		--title "php.ini configure" \
+		--nocancel \
+		--form "Configure php.ini" \
 	20 100 0 \
 			"Execution Time:"     1 1   "$exe_time"     1 20 15 0\
 			"Input Variables:"    2 1   "$in_vars"      2 20 15 0 \
@@ -284,8 +285,8 @@ phpini_config() {
 			/^${invars}/!s/^;*\(max_input_vars = \).*/\1${invars}/
 			/^${memlim}/!s/^;*\(memory_limit = \).*/\1${memlim}M/
 			/^${maxfil}/!s/^;*\(max_file_size = \).*/\1${maxfil}/
-			/^${maxpos}/!s/^;*\(max_post_size = \).*/\1${maxpos}/" /etc/php/"$pvar"/fpm/php.ini
-	sudo sed -i "s/www-data/$uname/g;s/^;*\(listen.mode = 0660 \).*/\1/" /etc/php/"$pvar"/fpm/pool.d/www.conf
+			/^${maxpos}/!s/^;*\(max_post_size = \).*/\1${maxpos}/" /etc/php/${pvar}/fpm/php.ini
+	sudo sed -i "s/www-data/$uname/g;s/^;*\(listen.mode = 0660 \).*/\1/" /etc/php/${pvar}/fpm/pool.d/www.conf
 }
 site_dir() {
 	msgs=("Creating domain directory"
@@ -293,15 +294,15 @@ site_dir() {
 	"Changing domain directory permissions"
 	"Configuring sites-available"
 	"Processing sites-available"
-	Creating symlinks"
+	"Creating symlinks"
 	"Reload Nginx"
 	"Restart Nginx"
 		)
-	commands=('mkdir "$domain"'
-	'mkdir "$domain"/logs'
-	'chmod -R 755 "$domain"'
-	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/server.conf -O /etc/nginx/sites-available/"$domain"'
-	'sudo sed -i "s/tld/$domain/g;s/userhome/$uhome/g;s/pver/$pver/g" /etc/nginx/sites-available/"$domain"'
+	commands=('mkdir ${domain}'
+	'mkdir ${domain}/logs'
+	'chmod -R 755 ${domain}'
+	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/server.conf -O /etc/nginx/sites-available/${domain}'
+	'sudo sed -i "s/tld/${domain}/g;s/userhome/${uhome}/g;s/pver/${pver}/g" /etc/nginx/sites-available/${domain}'
 	'sudo ln -s /etc/nginx/sites-available/"$domain" /etc/nginx/sites-enabled/"$domain"'
 	'sudo systemctl reload nginx'
 	'sudo systemctl restart nginx'
@@ -383,10 +384,10 @@ wp_install() {
 	while true; do
 	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 20 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_pass" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Password cannot be empty" 20 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Password cannot be empty" 20 100 
 		continue
 	  elif [[ "${admin_pass}" =~ ${pattern} ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 20 100
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Format incorrect" 20 100
 		continue
 	  fi
 	  break
@@ -394,7 +395,7 @@ wp_install() {
 	while true; do
 	  admin_mail=$(dialog --cr-wrap --keep-tite --title "Admin Email" --ok-label "Continue" --nocancel --inputbox "Enter Wordpress Admin email" 20 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_mail" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Admin Email cannot be empty" 20 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Admin Email cannot be empty" 20 100 
 		continue
 	  fi
 	  break
@@ -436,9 +437,8 @@ ssl_install() {
 	'\nAll privileges granted on database to user'
 	'\nReload privilege tables'
 	'\nRestart Mariadb'
-	'\nReload Mariadb'
 		)
-	commands=(	'sudo DEBIAN_FRONTEND=noninteractive snap -y install core'
+	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap -y install core'
 	'sudo snap refresh core'
 	'sudo DEBIAN_FRONTEND=noninteractive snap -y install --classic certbot'
 	'sudo ln -s /snap/bin/certbot /usr/bin/certbot'
@@ -458,13 +458,13 @@ ssl_install() {
 		i=$((i + 1))
 		sleep 2
 	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 20 100 0
-	
+}	
 main() {
 	nslook=$(dig ns +short "${domain}")
 	if [[ ${nslook} = *cloudflare* ]]; then
 		while true; do
-			cf_auth_key=$(dialog --cr-wrap --keep-tite --title "Cloudflare Auth Key" --ok-label "Continue" --nocancel --inputbox "Enter your Cloudflare Auth Key" 20 100 3>&1 1>&2 2>&3 3>&-)
-			cf_auth_email=$(dialog --cr-wrap --keep-tite --title "Cloudflare Email" --ok-label "Continue" --nocancel --inputbox "Enter your Cloudflare Email" 20 100 3>&1 1>&2 2>&3 3>&-)
+			cf_auth_key=$(dialog --cr-wrap --keep-tite --title "Cloudflare Auth Key" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Auth Key" 20 100 3>&1 1>&2 2>&3 3>&-)
+			cf_auth_email=$(dialog --cr-wrap --keep-tite --title "Cloudflare Email" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Email" 20 100 3>&1 1>&2 2>&3 3>&-)
 			zone="$domain"
 			result=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" \
 				-H "X-Auth-Email: $cf_auth_email" \
@@ -509,20 +509,20 @@ main() {
 			  -H "X-Auth-Email: $cf_auth_email" \
 			  -H "X-Auth-Key: $cf_auth_key" \
 			  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
-	    if [[ "$cname_id" = null ]]; then
+	        if [[ "$cname_id" = null ]]; then
 			curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" \
 			  -H "X-Auth-Email: $cf_auth_email" \
 			  -H "X-Auth-Key: $cf_auth_key" \
 			  -H "Content-Type: application/json" \
 			  --data "{\"type\":\"CNAME\",\"name\":\"$cname\",\"content\":\"$zone\",\"ttl\":1,\"proxied\":true}" | jq > /dev/null 2>&1
-	    fi
+	        fi
 		curl -s -X PATCH 'https://api.cloudflare.com/client/v4/zones/$zoneid/settings/ssl' \
 		  -H "X-Auth-Email: $cf_auth_email" \
 		  -H "X-Auth-Key: $cf_auth_key" \
 		  -H "Content-Type: application/json" \
 		  --data-raw '{
 		  "value":"flexible"
-			}' > /dev/null 2>&1
+			}' | jq > /dev/null 2>&1
 		nginx_install
 		nginx_config
 		firewall_install
