@@ -525,7 +525,6 @@ main() {
 		site_dir
 		site_db
 		wp_install
-		ssl_install
 	else
 		nginx_install
 		nginx_config
@@ -537,7 +536,6 @@ main() {
 		site_dir
 		site_db
 		wp_install
-		ssl_install
 	fi
 }
 main
