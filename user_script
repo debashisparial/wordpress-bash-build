@@ -22,6 +22,7 @@ nginx_install() {
 	"\n\nNginx Extras with cache-purge installation initiated..."
 	"\n\nInitiating Nginx...."
 	"\n\nInitiating Nginx...."
+	"\n\nInitiating Nginx...."
 	"\n\nNginx initiated successfully..."
 		 )
 	commands=(
@@ -31,6 +32,7 @@ nginx_install() {
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install nginx-extras'
 	'sudo systemctl enable nginx'
+	'sudo systemctl start nginx'
 	'sudo systemctl restart nginx'
 	'sudo systemctl reload nginx'
 			 )
@@ -39,7 +41,7 @@ nginx_install() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nNginx install status - success!\nXXX" #if progress percentage is equal to 100% then show this message
+			echo -e "XXX\n100\n\nNginx install status - success!\nXXX" #if progress percentage is equal to 100% then show this message
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -47,7 +49,7 @@ nginx_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Nginx Installation" --gauge "System Update..." 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Nginx Installation" --gauge "\n\nSystem Update..." 10 100 0
 }
 nginx_config() {
 	msgs=( "\n\nNginx configuration file..."
@@ -302,7 +304,7 @@ site_dir() {
 	'mkdir ${domain}/logs'
 	'chmod -R 755 ${domain}'
 	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/server.conf -O /etc/nginx/sites-available/${domain}'
-	'sudo sed -i -e "s/tld/${domain}/g" -e "s/userhome/${uhome}/g" -e "s/pver/${pver}/g" /etc/nginx/sites-available/${domain}'
+	'sudo sed -i -e "s/tld/${domain}/g" -e "s#userhome#${uhome}#g" -e "s/pver/${pver}/g" /etc/nginx/sites-available/${domain}'
 	'sudo ln -s /etc/nginx/sites-available/"$domain" /etc/nginx/sites-enabled/"$domain"'
 	'sudo systemctl reload nginx'
 	'sudo systemctl restart nginx'
@@ -433,8 +435,8 @@ ssl_install() {
 	msgs=('\n\nSnap Core installation'
 	'\n\nSnap Core refresh'
 	'\n\nCertbot installation'
-	'\nCertbot installation'
-	'\nLetsEncrypt SSl installation'
+	'\n\nCertbot installation'
+	'\n\nLetsEncrypt SSl installation'
 		)
 	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap -y install core'
 	'sudo snap refresh core'
@@ -447,7 +449,7 @@ ssl_install() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nLetsEncrypt SSL installation complete!\nXXX"
+			echo -e "XXX\n100\n\nLetsEncrypt SSL installation complete!\nXXX"
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -455,7 +457,7 @@ ssl_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSnap Core installation" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSnap Core installation" 10 100 0
 }	
 main() {
 	nslook=$(dig ns +short "${domain}")
