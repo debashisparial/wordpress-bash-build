@@ -8,6 +8,7 @@ export NCURSES_NO_UTF8_ACS=1
 ############################ Nginx Installation #############################################################
 hostname="$(hostname)"
 domain="${hostname#*.}"
+cname="www.${domain}"
 ips=$(curl -s -X GET https://checkip.amazonaws.com)
 uname="$(whoami)"
 uhome=$(eval echo ~$uname)
@@ -467,8 +468,8 @@ main() {
 			cf_auth_email=$(dialog --cr-wrap --keep-tite --title "Cloudflare Email" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Email" 10 100 3>&1 1>&2 2>&3 3>&-)
 			zone="$domain"
 			result=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" \
-				-H "X-Auth-Email: $cf_auth_email" \
-				-H "X-Auth-Key: $cf_auth_key" \
+				-H "X-Auth-Email: ${cf_auth_email}" \
+				-H "X-Auth-Key: ${cf_auth_key}" \
 				-H "Content-Type: application/json" | jq -r '{"success"}[]')
 			if [ "$result" = false ] ; then
 				dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Incorrect Cloudflare Key or Email. Please try again." 10 100 
@@ -477,50 +478,52 @@ main() {
 			break
 		done
 		zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone&status=active" \
-		  -H "X-Auth-Email: $cf_auth_email" \
-		  -H "X-Auth-Key: $cf_auth_key" \
+		  -H "X-Auth-Email: ${cf_auth_email}" \
+		  -H "X-Auth-Key: ${cf_auth_key}" \
 		  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
 		  
 		# get the dns record id
 		a_id=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$zone" \
-		  -H "X-Auth-Email: $cf_auth_email" \
-		  -H "X-Auth-Key: $cf_auth_key" \
+		  -H "X-Auth-Email: ${cf_auth_email}" \
+		  -H "X-Auth-Key: ${cf_auth_key}" \
 		  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
 
 		ip_check=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$zone" \
-			  -H "X-Auth-Email: $cf_auth_email" \
-			  -H "X-Auth-Key: $cf_auth_key" \
+			  -H "X-Auth-Email: ${cf_auth_email}" \
+			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .content')
 		if [[ "$ips" != "$ip_check" ]]; then
 		# update the record
-			curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/$a_id" \
-			  -H "X-Auth-Email: $cf_auth_email" \
-			  -H "X-Auth-Key: $cf_auth_key" \
+			curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/${a_id}" \
+			  -H "X-Auth-Email: ${cf_auth_email}" \
+			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" \
 			  --data "{\"type\":\"A\",\"name\":\"$zone\",\"content\":\"$ips\",\"ttl\":1,\"proxied\":true}" | jq > /dev/null 2>&1
-		elif [[ "$ips_check" = null ]]; then 
-			curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/$a_id" \
-			  -H "X-Auth-Email: $cf_auth_email" \
-			  -H "X-Auth-Key: $cf_auth_key" \
+		elif [[ "$ip_check" = null ]]; then 
+			curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/${a_id}" \
+			  -H "X-Auth-Email: ${cf_auth_email}" \
+			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" \
 			  --data "{\"type\":\"A\",\"name\":\"$zone\",\"content\":\"$ips\",\"ttl\":1,\"proxied\":true}" | jq > /dev/null 2>&1
 		fi
 		cname_id=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=CNAME&name=$cname" \
-			  -H "X-Auth-Email: $cf_auth_email" \
-			  -H "X-Auth-Key: $cf_auth_key" \
+			  -H "X-Auth-Email: ${cf_auth_email}" \
+			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
 	        if [[ "$cname_id" = null ]]; then
 			curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" \
-			  -H "X-Auth-Email: $cf_auth_email" \
-			  -H "X-Auth-Key: $cf_auth_key" \
+			  -H "X-Auth-Email: ${cf_auth_email}" \
+			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" \
 			  --data "{\"type\":\"CNAME\",\"name\":\"$cname\",\"content\":\"$zone\",\"ttl\":1,\"proxied\":true}" | jq > /dev/null 2>&1
 	        fi
-		curl -s -X PATCH 'https://api.cloudflare.com/client/v4/zones/$zoneid/settings/ssl' \
-		  -H "X-Auth-Email: $cf_auth_email" \
-		  -H "X-Auth-Key: $cf_auth_key" \
-		  -H "Content-Type: application/json" \
-		  --data "{\"value\":\"flexible\"}" | jq > /dev/null 2>&1
+		curl -s -X PATCH "https://api.cloudflare.com/client/v4/zones/${zoneid}/settings/ssl" \
+			--header "X-Auth-Email: ${cf_auth_email}" \
+			--header "X-Auth-Key: ${cf_auth_key}" \
+			--header 'Content-Type: application/json' \
+			--data-raw '{
+			  "value":"flexible"
+			}' > /dev/null 2>&1
 		nginx_install
 		nginx_config
 		firewall_install
