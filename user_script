@@ -119,7 +119,7 @@ mariadb_install() {
 		 "Mariadb 10.4" ""
 		 "Mariadb 10.3" "")
 
-	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
 
 	clear
 	case $CHOICE in
@@ -200,7 +200,7 @@ php-fpm_install() {
 			 "PHP 7.4" ""
 			 "PHP 7.3" "" )
 
-	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 20 70 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
 
 	clear
 	case $CHOICE in
@@ -245,7 +245,7 @@ php-fpm_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "PHP-fpm Installation" --gauge "System update....." 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "PHP-fpm Installation" --gauge "\n\nSystem update....." 10 100 0
 }
 phpini_config() {
 	exe_time=""
@@ -316,7 +316,7 @@ site_dir() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "Creating domain directory" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "\n\nCreating domain directory" 10 100 0
 }
 var_db() {
 	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
@@ -426,11 +426,11 @@ wp_install() {
 	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nWP Cli download" 10 100 0
 }
 ssl_install() {
-	msgs=('\nSite database created'
-	'\nDatabase user created'
-	'\nAll privileges granted on database to user'
-	'\nReload privilege tables'
-	'\nRestart Mariadb'
+	msgs=('\n\nSnap Core installation'
+	'\n\nSnap Core refresh'
+	'\n\nCertbot installation'
+	'\nCertbot installation'
+	'\nLetsEncrypt SSl installation'
 		)
 	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap -y install core'
 	'sudo snap refresh core'
@@ -443,7 +443,7 @@ ssl_install() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nLetsEncrypt SSL completed!\nXXX"
+			echo -e "XXX\n100\nLetsEncrypt SSL installation complete!\nXXX"
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -451,7 +451,7 @@ ssl_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSnap Core installation" 10 100 0
 }	
 main() {
 	nslook=$(dig ns +short "${domain}")
@@ -525,6 +525,7 @@ main() {
 		site_dir
 		site_db
 		wp_install
+		ssl_install
 	else
 		nginx_install
 		nginx_config
@@ -536,6 +537,7 @@ main() {
 		site_dir
 		site_db
 		wp_install
+		ssl_install
 	fi
 }
 main
