@@ -514,7 +514,7 @@ main() {
 		  -H "X-Auth-Email: $cf_auth_email" \
 		  -H "X-Auth-Key: $cf_auth_key" \
 		  -H "Content-Type: application/json" \
-		  --data-raw '{\"value\":\"flexible\"}' | jq > /dev/null 2>&1
+		  --data "{\"value\":\"flexible\"}" | jq > /dev/null 2>&1
 		nginx_install
 		nginx_config
 		firewall_install
