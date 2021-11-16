@@ -170,3 +170,4 @@
 		i=$((i + 1))
 		sleep 1
 	done | dialog --cr-wrap --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 20 100 0
+	sudo -i -u "$uname" bash $uhome/user_script
