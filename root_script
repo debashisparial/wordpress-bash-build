@@ -10,7 +10,7 @@
 	dialog --create-rc ~/.dialogrc
 	apt-get -y install jq
 	} > /dev/null 2>&1
-	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
+	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
 	msgs=("System Update...."  
 	"System Upgrade...."
 		 )
