@@ -11,14 +11,14 @@ wproc=$(nproc --all)
 wconn=$(ulimit -n)
 wconn=$(($wproc*$wconn))
 nginx_install() {
-	msgs=( "System update started...."
-	"Nginx repo added...."
-	"System update..."
-	"System upgrade in progress..."
-	"Nginx Extras with cache-purge installation initiated..."
-	"Initiating Nginx...."
-	"Initiating Nginx...."
-	"Nginx initiated successfully..."
+	msgs=( "\n\nSystem update started...."
+	"\n\nNginx repo added...."
+	"\n\nSystem update..."
+	"\n\nSystem upgrade in progress..."
+	"\n\nNginx Extras with cache-purge installation initiated..."
+	"\n\nInitiating Nginx...."
+	"\n\nInitiating Nginx...."
+	"\n\nNginx initiated successfully..."
 		 )
 	commands=(
 	'sudo apt-get update'
@@ -43,13 +43,13 @@ nginx_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Nginx Installation" --gauge "System Update..." 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Nginx Installation" --gauge "System Update..." 10 100 0
 }
 nginx_config() {
-	msgs=( "Nginx configuration file..."
-	"Nginx config updated...."
-	"Nginx reload..."
-	"Nginx restart..."
+	msgs=( "\n\nNginx configuration file..."
+	"\n\nNginx config updated...."
+	"\n\nNginx reload..."
+	"\n\nNginx restart..."
 		 )
 	commands=(
 	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/nginx.conf -O /etc/nginx/nginx.conf'
@@ -70,18 +70,18 @@ nginx_config() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Nginx Configuration" --gauge "System update....." 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Nginx Configuration" --gauge "System update....." 10 100 0
 }
 firewall_install() {
-	msgs=( "System update started...."
-	"UFW installation started...."
-	"Allow TCP Port 80/443"
-	"Allow SSH Port 22"
-	"UFW enabled...."
-	"UFW reload...."
-	"Fail2ban installation started...."
-	"Fail2ban enabled...."
-	"Fail2ban enabled...."
+	msgs=( "\n\nSystem update started...."
+	"\n\nUFW installation started...."
+	"\n\nAllow TCP Port 80/443"
+	"\n\nAllow SSH Port 22"
+	"\\n\nUFW enabled...."
+	"\n\nUFW reload...."
+	"\n\nFail2ban installation started...."
+	"\n\nFail2ban enabled...."
+	"\n\nFail2ban enabled...."
 		 )
 	commands=(
 	"sudo apt-get update"
@@ -107,7 +107,7 @@ firewall_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "UFW & Fail2ban Installation" --gauge "System update....." 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "UFW & Fail2ban Installation" --gauge "System update....." 10 100 0
 }
 mariadb_install() {
 	BACKTITLE="Wordpress Installation"
@@ -136,10 +136,10 @@ mariadb_install() {
 				mver=10.3
 				;;
 	esac
-	msgs=( "Mariadb repo download"
-	"Mariadb repo setup..."
-	"System update..."
-	"Installing Mariadb"
+	msgs=( "\n\nMariadb repo download"
+	"\n\nariadb repo setup..."
+	"\n\nSystem update..."
+	"\n\nInstalling Mariadb"
 		 )
 	commands=(
 	'curl -LO -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup'
@@ -160,15 +160,15 @@ mariadb_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Mariadb Installation" --gauge "Mariadb repo download" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Mariadb Installation" --gauge "Mariadb repo download" 10 100 0
 }
 mariadb_secure() {
-	msgs=('\nDisallow root login remotely'
-	'\nRemove anonymous users'
-	'\nRemove test database and access to it'
-	'\nReload privilege tables'
-	'\nInitializing Mariadb...'
-	'\nRestart Mariadb'
+	msgs=('\n\nDisallow root login remotely'
+	'\n\nRemove anonymous users'
+	'\n\nRemove test database and access to it'
+	'\n\nReload privilege tables'
+	'\n\nInitializing Mariadb...'
+	'\n\nRestart Mariadb'
 		)
 	commands=('sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"'
 	'sudo mysql -e "DELETE FROM mysql.user WHERE User='';"'
@@ -190,7 +190,7 @@ mariadb_secure() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Mariadb Secure Installation" --gauge "\nDisallow root login remotely" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Mariadb Secure Installation" --gauge "\nDisallow root login remotely" 10 100 0
 }
 php-fpm_install() {
 	BACKTITLE="Wordpress Installation"
@@ -215,13 +215,13 @@ php-fpm_install() {
 				;;
 	esac
 	pver="php${pvar}"
-	msgs=( "System update started...."
-	"PHP repo added...."
-	"System update..."
-	"System upgrade in progress..."
-	"PHP-fpm installation initiated..."
-	"Starting PHP-fpm...."
-	"PHP-fpm started successfully..."
+	msgs=( "\n\nSystem update started...."
+	"\n\nPHP repo added...."
+	"\n\nSystem update..."
+	"\n\nSystem upgrade in progress..."
+	"\n\nPHP-fpm installation initiated..."
+	"\n\nStarting PHP-fpm...."
+	"\n\nPHP-fpm started successfully..."
 		 )
 	commands=(
 	'sudo apt-get update'
@@ -245,7 +245,7 @@ php-fpm_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "PHP-fpm Installation" --gauge "System update....." 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "PHP-fpm Installation" --gauge "System update....." 10 100 0
 }
 phpini_config() {
 	exe_time=""
@@ -263,7 +263,7 @@ phpini_config() {
 		--title "php.ini configure" \
 		--nocancel \
 		--form "Configure php.ini" \
-	20 100 0 \
+	10 100 0 \
 			"Execution Time:"     1 1   "$exe_time"     1 20 15 0\
 			"Input Variables:"    2 1   "$in_vars"      2 20 15 0 \
 			"Memory Limit:"       3 1   "$mem_limit"    3 20 15 0 \
@@ -285,14 +285,14 @@ phpini_config() {
 	sudo sed -i "s/www-data/$uname/g;s/^;*\(listen.mode = 0660 \).*/\1/" /etc/php/${pvar}/fpm/pool.d/www.conf
 }
 site_dir() {
-	msgs=("Creating domain directory"
-	"Creating domain logs directory"
-	"Changing domain directory permissions"
-	"Configuring sites-available"
-	"Processing sites-available"
-	"Creating symlinks"
-	"Reload Nginx"
-	"Restart Nginx"
+	msgs=("\n\nCreating domain directory"
+	"\n\nCreating domain logs directory"
+	"\n\nChanging domain directory permissions"
+	"\n\nConfiguring sites-available"
+	"\n\nrocessing sites-available"
+	"\n\nCreating symlinks"
+	"\n\nReload Nginx"
+	"\n\nRestart Nginx"
 		)
 	commands=('mkdir ${domain}'
 	'mkdir ${domain}/logs'
@@ -316,7 +316,7 @@ site_dir() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "Creating domain directory" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "Creating domain directory" 10 100 0
 }
 var_db() {
 	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
@@ -330,11 +330,11 @@ site_db() {
 	userdb=$(var_db)
 	vnum=$(shuf -i 12-15 -n 1)
 	passdb=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
-	msgs=('\nSite database created'
-	'\nDatabase user created'
-	'\nAll privileges granted on database to user'
-	'\nReload privilege tables'
-	'\nRestart Mariadb'
+	msgs=('\n\nSite database created'
+	'\n\nDatabase user created'
+	'\n\nAll privileges granted on database to user'
+	'\n\nReload privilege tables'
+	'\n\nRestart Mariadb'
 		)
 	commands=('sudo mysql -e "CREATE DATABASE ${dbname};"'
 	'sudo mysql -e "CREATE USER ${userdb}@localhost IDENTIFIED BY '${passdb}';"'
@@ -355,52 +355,52 @@ site_db() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 10 100 0
 }
 wp_install() {
 	while true; do
-	  site_title=$(dialog --cr-wrap --keep-tite --title "Site Title" --ok-label "Continue" --nocancel --inputbox "Enter Site Title" 20 100 3>&1 1>&2 2>&3 3>&-)
+	  site_title=$(dialog --cr-wrap --keep-tite --title "Site Title" --ok-label "Continue" --nocancel --inputbox "Enter Site Title" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$site_title" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Site Title cannot be empty" 20 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Site Title cannot be empty" 10 100 
 		continue
 	  fi
 	  break
 	done
 	while true; do
-	  admin_user=$(dialog --cr-wrap --keep-tite --title "Admin Username" --ok-label "Continue" --nocancel --inputbox "\nEnter Wordpress Admin Username" 20 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_user=$(dialog --cr-wrap --keep-tite --title "Admin Username" --ok-label "Continue" --nocancel --inputbox "\nEnter Wordpress Admin Username" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_user" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Admin Username cannot be empty" 20 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Admin Username cannot be empty" 10 100 
 		continue
 	  fi
 	  break
 	done
 	pattern="(^(.{0,15}|[^0-9]*|[^A-Z]*|[^a-z]*|[^a-zA-Z0-9]*|[^\s]*\s.*)$)"
 	while true; do
-	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 20 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_pass" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Password cannot be empty" 20 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Password cannot be empty" 10 100 
 		continue
 	  elif [[ "${admin_pass}" =~ ${pattern} ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Format incorrect" 20 100
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Format incorrect" 10 100
 		continue
 	  fi
 	  break
 	done
 	while true; do
-	  admin_mail=$(dialog --cr-wrap --keep-tite --title "Admin Email" --ok-label "Continue" --nocancel --inputbox "Enter Wordpress Admin email" 20 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_mail=$(dialog --cr-wrap --keep-tite --title "Admin Email" --ok-label "Continue" --nocancel --inputbox "Enter Wordpress Admin email" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_mail" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Admin Email cannot be empty" 20 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Admin Email cannot be empty" 10 100 
 		continue
 	  fi
 	  break
 	done
-	msgs=('\nWP Cli download...'
-	'\nWP Cli permissions update....'
-	'\nWP Cli Moved directory'
-	'\nChanged to domain directory...'
-	'\nWordpress core download...'
-	'\nDatabase connection established'
-	'\nWordpress Installation initiated...'
+	msgs=('\n\nWP Cli download...'
+	'\n\nWP Cli permissions update....'
+	'\n\nWP Cli Moved directory'
+	'\n\nChanged to domain directory...'
+	'\n\nWordpress core download...'
+	'\n\nDatabase connection established'
+	'\n\nWordpress Installation initiated...'
 		)
 	commands=('curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'
 	'chmod +x wp-cli.phar'
@@ -423,7 +423,7 @@ wp_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nWP Cli download" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nWP Cli download" 10 100 0
 }
 ssl_install() {
 	msgs=('\nSite database created'
@@ -451,21 +451,21 @@ ssl_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 10 100 0
 }	
 main() {
 	nslook=$(dig ns +short "${domain}")
 	if [[ ${nslook} = *cloudflare* ]]; then
 		while true; do
-			cf_auth_key=$(dialog --cr-wrap --keep-tite --title "Cloudflare Auth Key" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Auth Key" 20 100 3>&1 1>&2 2>&3 3>&-)
-			cf_auth_email=$(dialog --cr-wrap --keep-tite --title "Cloudflare Email" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Email" 20 100 3>&1 1>&2 2>&3 3>&-)
+			cf_auth_key=$(dialog --cr-wrap --keep-tite --title "Cloudflare Auth Key" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Auth Key" 10 100 3>&1 1>&2 2>&3 3>&-)
+			cf_auth_email=$(dialog --cr-wrap --keep-tite --title "Cloudflare Email" --ok-label "Continue" --nocancel --inputbox "\nEnter your Cloudflare Email" 10 100 3>&1 1>&2 2>&3 3>&-)
 			zone="$domain"
 			result=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" \
 				-H "X-Auth-Email: $cf_auth_email" \
 				-H "X-Auth-Key: $cf_auth_key" \
 				-H "Content-Type: application/json" | jq -r '{"success"}[]')
 			if [ "$result" = false ] ; then
-				dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Incorrect Cloudflare Key or Email. Please try again." 20 100 
+				dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Incorrect Cloudflare Key or Email. Please try again." 10 100 
 				continue
 			fi
 			break
