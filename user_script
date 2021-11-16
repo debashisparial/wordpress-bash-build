@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Purpose - Script to create a wordpress site on Ubuntu using Nginx, Mariadb and PHP
+# Author - Debashis Parial under GPL v3.0+
+# ------------------------------------------------------------------
+# Wordpress Installation
 
 export NCURSES_NO_UTF8_ACS=1
 ############################ Nginx Installation #############################################################
