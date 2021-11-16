@@ -298,7 +298,7 @@ site_dir() {
 	'mkdir ${domain}/logs'
 	'chmod -R 755 ${domain}'
 	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/server.conf -O /etc/nginx/sites-available/${domain}'
-	'sudo sed -i "s/tld/${domain}/g;s/userhome/${uhome}/g;s/pver/${pver}/g" /etc/nginx/sites-available/${domain}'
+	'sudo sed -i -e "s/tld/${domain}/g" -e "s/userhome/${uhome}/g" -e "s/pver/${pver}/g" /etc/nginx/sites-available/${domain}'
 	'sudo ln -s /etc/nginx/sites-available/"$domain" /etc/nginx/sites-enabled/"$domain"'
 	'sudo systemctl reload nginx'
 	'sudo systemctl restart nginx'
@@ -514,9 +514,7 @@ main() {
 		  -H "X-Auth-Email: $cf_auth_email" \
 		  -H "X-Auth-Key: $cf_auth_key" \
 		  -H "Content-Type: application/json" \
-		  --data-raw '{
-		  "value":"flexible"
-			}' | jq > /dev/null 2>&1
+		  --data-raw '{\"value\":\"flexible\"}' | jq > /dev/null 2>&1
 		nginx_install
 		nginx_config
 		firewall_install
