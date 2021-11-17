@@ -289,7 +289,7 @@ phpini_config() {
 			/^${memlim}/!s/^;*\(memory_limit = \).*/\1${memlim}M/
 			/^${maxfil}/!s/^;*\(max_file_size = \).*/\1${maxfil}/
 			/^${maxpos}/!s/^;*\(max_post_size = \).*/\1${maxpos}/" /etc/php/${pvar}/fpm/php.ini
-	sudo sed -i "s/www-data/$uname/g;s/^;*\(listen.mode = 0660 \).*/\1/" /etc/php/${pvar}/fpm/pool.d/www.conf
+	sudo sed -i -e "s/www-data/${uname}/g" -e "/listen.mode = 0660/ s/^;//" /etc/php/${pvar}/fpm/pool.d/www.conf
 }
 site_dir() {
 	msgs=("\n\nCreating domain directory"
@@ -325,16 +325,23 @@ site_dir() {
 		sleep 2
 	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "\n\nCreating domain directory" 10 100 0
 }
-var_db() {
+nam_db() {
 	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
 	vnum=$(shuf -i 8-11 -n 1)
 	sfx=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
-	varnam="${pfx}_${sfx}"
-	echo "$varnam"
+	namdb="${pfx}_${sfx}"
+	echo "$namdb"
+}
+use_db() {
+	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
+	vnum=$(shuf -i 8-11 -n 1)
+	sfx=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
+	usedb="${pfx}_${sfx}"
+	echo "$usedb"
 }
 site_db() {
-	dbname=$(var_db)
-	userdb=$(var_db)
+	dbname=$(nam_db)
+	userdb=$(use_db)
 	vnum=$(shuf -i 12-15 -n 1)
 	passdb=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
 	msgs=('\n\nSite database created'
