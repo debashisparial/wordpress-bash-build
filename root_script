@@ -7,12 +7,11 @@
 	export NCURSES_NO_UTF8_ACS=1
 	{ apt-get update
 	apt-get -y install dialog
-	dialog --create-rc ~/.dialogrc
 	apt-get -y install jq
 	} > /dev/null 2>&1
-	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 20 100 
-	msgs=("System Update...."  
-	"System Upgrade...."
+	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
+	msgs=("\n\nSystem Update...."  
+	"\n\nSystem Upgrade...."
 		 )
 	commands=('apt-get update'
 	'DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
@@ -30,16 +29,16 @@
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 20 100 0
-	dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\nHostname addition, hosts file update, Time zone update, Sudo user addition & Add SSH key." 20 100 
+	done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
+	dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update, Sudo user addition & Add SSH key." 15 100 
 	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	while true; do
-		fqdn=$(dialog --cr-wrap --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 20 100 3>&1 1>&2 2>&3 3>&-)
+		fqdn=$(dialog --cr-wrap --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "\n\nEnter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$fqdn" ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 20 100 
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Hostname cannot be empty" 15 100 
 			continue
 		elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 20 100
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
 			continue
 		fi
 		hostnamectl set-hostname "$fqdn" && hostname -F /etc/hostname
@@ -59,8 +58,8 @@
 	else
 		echo -e "\n$ips $hostname $domain" >> /etc/hosts
 	fi
-	msgs=("Gathering Time Zone info...."  
-	"Setting Time Zone..."
+	msgs=("\n\nGathering Time Zone info...."  
+	"\n\nSetting Time Zone..."
 		 )
 	commands=('ln -snf /usr/share/zoneinfo/$(curl -s https://ipapi.co/timezone) /etc/localtime'
 	'DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata'
@@ -78,24 +77,24 @@
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "Time Zone Configuration" --gauge "Gathering Time Zone info...." 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Time Zone Configuration" --gauge "\n\nGathering Time Zone info...." 15 100 0
 	# Adding another sudo user apart from root. Root credentials can be security risk.
 	while true; do
-		uname=$(dialog --cr-wrap --keep-tite --title "Username" --ok-label "Continue" --nocancel --inputbox "Enter your username" 20 100 3>&1 1>&2 2>&3 3>&-)
+		uname=$(dialog --cr-wrap --keep-tite --title "Username" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your username" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$uname" ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username cannot be empty" 20 100
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\n Error! Username cannot be empty" 15 100
 			continue
 		elif grep "${uname}" /etc/passwd >/dev/null 2>&1; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username exists, use another name" 20 100
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Username exists, use another name" 15 100
 			continue
 		fi
 		adduser --gecos "" --disabled-password "$uname" >/dev/null 2>&1
 		break
 	done
-	pword=$(dialog --cr-wrap --keep-tite --title "Password" --ok-label "Continue" --nocancel --inputbox "Enter your password" 20 100 3>&1 1>&2 2>&3 3>&-)
-	msgs=( "Creating user..."
-	"Adding to sudoers list"
-	"Disabling sudo passwd prompt"
+	pword=$(dialog --cr-wrap --keep-tite --title "Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your password" 15 100 3>&1 1>&2 2>&3 3>&-)
+	msgs=( "\n\nCreating user..."
+	"\n\nAdding to sudoers list"
+	"\n\nDisabling sudo passwd prompt"
 		 )
 	commands=('chpasswd <<<"$uname:$pword"'
 	'usermod -a -G sudo "$uname"'
@@ -106,7 +105,7 @@
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nUser $uname added!\nXXX" #if progress percentage is equal to 100% then show this message
+			echo -e "XXX\n100\n\nUser $uname added!\nXXX" #if progress percentage is equal to 100% then show this message
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -114,16 +113,16 @@
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "Adding User" --gauge "Creating user..." 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "Adding User" --gauge "\n\nCreating user..." 15 100 0
 	uhome=$(eval echo ~$uname)
-	pubkey=$(dialog --cr-wrap --keep-tite --title "SSH Key" --ok-label "Continue" --nocancel --inputbox "\nEnter your SSH Pubkey" 20 100 3>&1 1>&2 2>&3 3>&-)
-	msgs=("Creating user's SSH directory..."  
-	"SSH directory permission update... "
-	"Adding SSH pubkey..."
-	"SSH pubkey permission update...."
-	"Changing SSH directory ownership..."
-	"Configuring ssshd_config file...."
-	"System update..."
+	pubkey=$(dialog --cr-wrap --keep-tite --title "SSH Key" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your SSH Pubkey" 15 100 3>&1 1>&2 2>&3 3>&-)
+	msgs=("\n\nCreating user's SSH directory..."  
+	"\n\nSSH directory permission update... "
+	"\n\nAdding SSH pubkey..."
+	"\n\nSSH pubkey permission update...."
+	"\n\nChanging SSH directory ownership..."
+	"\n\nConfiguring ssshd_config file...."
+	"\n\nSystem update..."
 		 )
 	commands=('mkdir $uhome/.ssh'
 	'chmod 700 $uhome/.ssh'
@@ -146,11 +145,11 @@
 		eval "${commands[i]}" > /dev/null 2>&1
 		i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "User SSH Configuration" --gauge "\nCreating User's SSH Directory" 20 100 0
-	dialog --cr-wrap --keep-tite --title "Part II" --msgbox "\nNginx, Mariadb and PHP installation & configuration." 20 100
-	msgs=("Preparing system environment...."
-	"Preparing system environment...."
-	"Preparing system environment...."
+	done | dialog --cr-wrap --keep-tite --title "User SSH Configuration" --gauge "\nCreating User's SSH Directory" 15 100 0
+	dialog --cr-wrap --keep-tite --title "Part II" --msgbox "\nNginx, Mariadb and PHP installation & configuration." 15 100
+	msgs=("\n\nPreparing system environment...."
+	"\n\nPreparing system environment...."
+	"\n\nPreparing system environment...."
 		 )
 	commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/user_script -L -s'
 	'chmod +x $uhome/user_script'
@@ -169,5 +168,5 @@
 		eval "${commands[i]}" > /dev/null 2>&1
 		i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 20 100 0
+	done | dialog --cr-wrap --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 15 100 0
 	sudo -i -u "$uname" bash $uhome/user_script
