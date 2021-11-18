@@ -361,7 +361,7 @@ site_db() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nMariadb secure installation completed!\nXXX"
+			echo -e "XXX\n100\n\nSite database creation successful!!\nXXX"
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -369,7 +369,7 @@ site_db() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nSite database created" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSite database created" 10 100 0
 }
 wp_install() {
 	while true; do
@@ -381,21 +381,21 @@ wp_install() {
 	  break
 	done
 	while true; do
-	  admin_user=$(dialog --cr-wrap --keep-tite --title "Admin Username" --ok-label "Continue" --nocancel --inputbox "\nEnter Wordpress Admin Username" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_user=$(dialog --cr-wrap --keep-tite --title "Admin Username" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin Username" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_user" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Admin Username cannot be empty" 10 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Admin Username cannot be empty" 10 100 
 		continue
 	  fi
 	  break
 	done
 	pattern="(^(.{0,15}|[^0-9]*|[^A-Z]*|[^a-z]*|[^a-zA-Z0-9]*|[^\s]*\s.*)$)"
 	while true; do
-	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 20 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_pass" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Password cannot be empty" 10 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Password cannot be empty" 15 100 
 		continue
 	  elif [[ "${admin_pass}" =~ ${pattern} ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Format incorrect" 10 100
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
 		continue
 	  fi
 	  break
@@ -429,7 +429,7 @@ wp_install() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nWordpress installed successfully!\nXXX"
+			echo -e "XXX\n100\n\nWordpress installed successfully!\nXXX"
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -437,7 +437,7 @@ wp_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\nWP Cli download" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nWP Cli download" 10 100 0
 }
 ssl_install() {
 	msgs=('\n\nSnap Core installation'
@@ -529,7 +529,7 @@ main() {
 			--header "X-Auth-Key: ${cf_auth_key}" \
 			--header 'Content-Type: application/json' \
 			--data-raw '{
-			  "value":"flexible"
+			  "value":"off"
 			}' > /dev/null 2>&1
 		nginx_install
 		nginx_config
