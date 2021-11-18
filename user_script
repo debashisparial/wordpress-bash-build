@@ -296,7 +296,7 @@ site_dir() {
 	"\n\nCreating domain logs directory"
 	"\n\nChanging domain directory permissions"
 	"\n\nConfiguring sites-available"
-	"\n\nrocessing sites-available"
+	"\n\nProcessing sites-available"
 	"\n\nCreating symlinks"
 	"\n\nReload Nginx"
 	"\n\nRestart Nginx"
@@ -351,8 +351,8 @@ site_db() {
 	'\n\nRestart Mariadb'
 		)
 	commands=('sudo mysql -e "CREATE DATABASE ${dbname};"'
-	'sudo mysql -e "CREATE USER ${userdb}@localhost IDENTIFIED BY '${passdb}';"'
-	'sudo mysql -e "GRANT ALL PRIVILEGES ON ${dbname}.* TO '${userdb}'@'localhost';"'
+	'sudo mysql -e "CREATE USER \"${userdb}\"@\"localhost\" IDENTIFIED BY \"${passdb}\";"'
+	'sudo mysql -e "GRANT ALL PRIVILEGES ON ${dbname}.* TO \"${userdb}\"@\"localhost\";"'
 	'sudo mysql -e "FLUSH PRIVILEGES;"'
 	'sudo systemctl restart mariadb'
 			)
@@ -541,7 +541,6 @@ main() {
 		site_dir
 		site_db
 		wp_install
-		ssl_install
 	else
 		nginx_install
 		nginx_config
@@ -553,7 +552,6 @@ main() {
 		site_dir
 		site_db
 		wp_install
-		ssl_install
 	fi
 }
 main
