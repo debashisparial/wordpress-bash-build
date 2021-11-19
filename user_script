@@ -222,7 +222,6 @@ php-fpm_install() {
 				;;
 	esac
 	pver="php${pvar}"
-	pfpm="{pver}-fpm"
 	msgs=( "\n\nSystem update started...."
 	"\n\nPHP repo added...."
 	"\n\nSystem update..."
@@ -237,8 +236,8 @@ php-fpm_install() {
 	'sudo apt-get update'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
 	'sudo apt-get -y install "${pver}-fpm" "${pver}-common" php-pear "${pver}-dev" "${pver}-curl" "${pver}-xmlrpc" "${pver}-cli" "${pver}-mbstring" "${pver}-gd" "${pver}-intl" "${pver}-mysql" "${pver}-imagick" "${pver}-opcache" "${pver}-soap" "${pver}-redis" "${pver}-zip" "${pver}-imap" "${pver}-xml"'
-	'sudo systemctl restart "${pfpm}"'
-	'sudo systemctl reload "${pfpm}"'
+	'sudo systemctl restart "${pver}-fpm"'
+	'sudo systemctl restart "${pver}-fpm"'
 			 )
 	n=${#commands[@]}
 	i=0
@@ -430,8 +429,8 @@ wp_install() {
 	'wp core install --url="${domain}" --title="${site_title}" --admin_user="${admin_user}" --admin_password="${admin_pass}" --admin_email="${admin_mail}"'
 	'sudo systemctl reload nginx'
 	'sudo systemctl restart nginx'
-	'sudo systemctl restart ${pfpm}'
-	'sudo systemctl reload ${pfpm}'
+	'sudo systemctl restart "${pver}-fpm"'
+	'sudo systemctl restart "${pver}-fpm"'
 			)
 	n=${#commands[@]}
 	i=0
@@ -550,7 +549,7 @@ main() {
 		site_dir
 		site_db
 		wp_install
-		sudo systemctl restart ${pfpm}
+		sudo systemctl restart "${pver}-fpm"
 else
 		nginx_install
 		nginx_config
