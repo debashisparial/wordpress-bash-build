@@ -550,7 +550,7 @@ main() {
 		site_dir
 		site_db
 		wp_install
-		sudo systemctl restart ${pfpm}
+		sudo reboot
 	else
 		nginx_install
 		nginx_config
