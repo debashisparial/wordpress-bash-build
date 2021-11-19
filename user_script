@@ -69,7 +69,7 @@ nginx_config() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nUFW & Fail2ban installed & activated successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+			echo -e "XXX\n100\n\nNginx configuration complete!\nXXX" #if progress percentage is equal to 100% then show this message
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -77,7 +77,7 @@ nginx_config() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Nginx Configuration" --gauge "System update....." 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Nginx Configuration" --gauge "\n\nSystem update....." 10 100 0
 }
 firewall_install() {
 	msgs=( "\n\nSystem update started...."
@@ -106,7 +106,7 @@ firewall_install() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nUFW & Fail2ban installed & activated successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+			echo -e "XXX\n100\n\nUFW & Fail2ban installed & activated successfully!\nXXX" #if progress percentage is equal to 100% then show this message
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -114,7 +114,7 @@ firewall_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "UFW & Fail2ban Installation" --gauge "System update....." 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "UFW & Fail2ban Installation" --gauge "\n\nSystem update....." 10 100 0
 }
 mariadb_install() {
 	BACKTITLE="Wordpress Installation"
@@ -144,7 +144,7 @@ mariadb_install() {
 				;;
 	esac
 	msgs=( "\n\nMariadb repo download"
-	"\n\nariadb repo setup..."
+	"\n\nMariadb repo setup..."
 	"\n\nSystem update..."
 	"\n\nInstalling Mariadb"
 		 )
@@ -159,7 +159,7 @@ mariadb_install() {
 	while [ "$i" -le "$n" ]; do
 		pct=$(( i * 100 / n )) # calculating progress percentage
 		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nMariadb installed successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+			echo -e "XXX\n100\n\nMariadb installed successfully!\nXXX" #if progress percentage is equal to 100% then show this message
 		else
 			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 		fi
@@ -167,7 +167,7 @@ mariadb_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Mariadb Installation" --gauge "Mariadb repo download" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Mariadb Installation" --gauge "\n\nMariadb repo download" 10 100 0
 }
 mariadb_secure() {
 	msgs=('\n\nDisallow root login remotely'
@@ -197,7 +197,7 @@ mariadb_secure() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Mariadb Secure Installation" --gauge "\nDisallow root login remotely" 10 100 0
+	done | dialog --cr-wrap --keep-tite --title "Mariadb Secure Installation" --gauge "\n\nDisallow root login remotely" 10 100 0
 }
 php-fpm_install() {
 	BACKTITLE="Wordpress Installation"
@@ -222,6 +222,7 @@ php-fpm_install() {
 				;;
 	esac
 	pver="php${pvar}"
+	pfpm="{pver}-fpm"
 	msgs=( "\n\nSystem update started...."
 	"\n\nPHP repo added...."
 	"\n\nSystem update..."
@@ -236,8 +237,8 @@ php-fpm_install() {
 	'sudo apt-get update'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
 	'sudo apt-get -y install "${pver}-fpm" "${pver}-common" php-pear "${pver}-dev" "${pver}-curl" "${pver}-xmlrpc" "${pver}-cli" "${pver}-mbstring" "${pver}-gd" "${pver}-intl" "${pver}-mysql" "${pver}-imagick" "${pver}-opcache" "${pver}-soap" "${pver}-redis" "${pver}-zip" "${pver}-imap" "${pver}-xml"'
-	'sudo systemctl restart "${pver}-fpm"'
-	'sudo systemctl reload "${pver}-fpm"'
+	'sudo systemctl restart "${pfpm}"'
+	'sudo systemctl reload "${pfpm}"'
 			 )
 	n=${#commands[@]}
 	i=0
@@ -375,7 +376,7 @@ wp_install() {
 	while true; do
 	  site_title=$(dialog --cr-wrap --keep-tite --title "Site Title" --ok-label "Continue" --nocancel --inputbox "Enter Site Title" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$site_title" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Site Title cannot be empty" 10 100 
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Site Title cannot be empty" 10 100 
 		continue
 	  fi
 	  break
@@ -390,7 +391,7 @@ wp_install() {
 	done
 	pattern="(^(.{0,15}|[^0-9]*|[^A-Z]*|[^a-z]*|[^a-zA-Z0-9]*|[^\s]*\s.*)$)"
 	while true; do
-	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 20 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 16 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 15 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_pass" ]]; then
 		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Password cannot be empty" 15 100 
 		continue
@@ -415,6 +416,10 @@ wp_install() {
 	'\n\nWordpress core download...'
 	'\n\nDatabase connection established'
 	'\n\nWordpress Installation initiated...'
+	'Nginx reload....'
+	'Nginx restarted....'
+	'Php-fpm restarted...'
+	'Php-fpm reload.....'
 		)
 	commands=('curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'
 	'chmod +x wp-cli.phar'
@@ -422,7 +427,11 @@ wp_install() {
 	'cd ~/"$domain"/'
 	'wp core download'
 	'wp core config --dbname=$dbname --dbuser=$userdb --dbpass=$passdb'
-	'wp core install --url="$domain" --title="$site_title" --admin_user="$admin_user" --admin_password="$admin_pass" --admin_email="$admin_mail"'
+	'wp core install --url="${domain}" --title="${site_title}" --admin_user="${admin_user}" --admin_password="${admin_pass}" --admin_email="${admin_mail}"'
+	'sudo systemctl reload nginx'
+	'sudo systemctl restart nginx'
+	'sudo systemctl restart ${pfpm}'
+	'sudo systemctl reload ${pfpm}'
 			)
 	n=${#commands[@]}
 	i=0
@@ -530,7 +539,7 @@ main() {
 			--header 'Content-Type: application/json' \
 			--data-raw '{
 			  "value":"off"
-			}' > /dev/null 2>&1
+			}' | jq > /dev/null 2>&1
 		nginx_install
 		nginx_config
 		firewall_install
@@ -541,6 +550,7 @@ main() {
 		site_dir
 		site_db
 		wp_install
+		ssl_install
 	else
 		nginx_install
 		nginx_config
@@ -552,6 +562,7 @@ main() {
 		site_dir
 		site_db
 		wp_install
+		ssl_install
 	fi
 }
 main
