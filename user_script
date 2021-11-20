@@ -455,16 +455,18 @@ ssl_install() {
 	'\n\nCertbot installation'
 	'\n\nCertbot installation'
 	'\n\nLetsEncrypt SSl installation'
+	'\n\nNginx stopped...'
+	'\n\nNginx pid refreshed...'
 	'\n\nNginx started...'
-	'\n\nNginx reload...'
 		)
 	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap install core'
 	'sudo snap refresh core'
 	'sudo DEBIAN_FRONTEND=noninteractive snap install --classic certbot'
 	'sudo ln -s /snap/bin/certbot /usr/bin/certbot'
 	'sudo certbot -n --nginx --agree-tos --no-eff-email --cert-name "${domain}" -d "${domain}","${cname}" --register-unsafely-without-email --redirect'
+	'sudo systemctl stop nginx'
+	'sudo rm /run/nginx.pid'
 	'sudo systemctl start nginx'
-	'sudo systemctl reload nginx'
 			)
 	n=${#commands[@]}
 	i=0
@@ -556,6 +558,7 @@ main() {
 		site_db
 		wp_install
 		sudo systemctl restart "${pver}-fpm"
+		ssl_install
 else
 		nginx_install
 		nginx_config
