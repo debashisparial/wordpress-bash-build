@@ -458,11 +458,11 @@ ssl_install() {
 	'\n\nNginx started...'
 	'\n\nNginx reload...'
 		)
-	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap -y install core'
+	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap install core'
 	'sudo snap refresh core'
-	'sudo DEBIAN_FRONTEND=noninteractive snap -y install --classic certbot'
+	'sudo DEBIAN_FRONTEND=noninteractive snap install --classic certbot'
 	'sudo ln -s /snap/bin/certbot /usr/bin/certbot'
-	'sudo certbot --noninteractive --agree-tos --no-eff-email --cert-name $domain --nginx --redirect -d $domain -d $cname --register-unsafely-without-email --webroot -w $uhome/$domain/'
+	'sudo certbot -n --nginx --agree-tos --no-eff-email --cert-name "${domain}" -d "${domain}","${cname}" --register-unsafely-without-email --redirect'
 	'sudo systemctl start nginx'
 	'sudo systemctl reload nginx'
 			)
