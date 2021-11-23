@@ -573,7 +573,7 @@ else
 		site_db
 		wp_install
 		sudo systemctl restart "${pver}-fpm"
-    ssl_install
+   		ssl_install
 	fi
 }
 main
