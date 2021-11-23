@@ -465,7 +465,7 @@ ssl_install() {
 	'sudo snap refresh core'
 	'sudo DEBIAN_FRONTEND=noninteractive snap install --classic certbot'
 	'sudo ln -s /snap/bin/certbot /usr/bin/certbot'
-	'sudo certbot -n --webroot -w  --agree-tos --no-eff-email --cert-name "${subdomain}" -d "${subdomain}","${cname}" --register-unsafely-without-email --redirect'
+	'sudo certbot -n --webroot -w ${uhome}/${subdomain}/ --agree-tos --no-eff-email --cert-name "${subdomain}" -d "${subdomain}","${cname}" --register-unsafely-without-email --redirect'
 	'sudo systemctl stop nginx'
 	'sudo rm /run/nginx.pid'
 	'sudo systemctl start nginx'
