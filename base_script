@@ -4,41 +4,57 @@
 # ------------------------------------------------------------------
 # Wordpress Installation
 
-	export NCURSES_NO_UTF8_ACS=1
-	{ apt-get update
-	apt-get -y install dialog
-	apt-get -y install jq
-	} > /dev/null 2>&1
-	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
-	msgs=("\n\nSystem Update...."  
-	"\n\nSystem Upgrade...."
-		 )
-	commands=('apt-get update'
-	'DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
-			)
-	n=${#commands[@]}
-	i=0
-	while [ "$i" -le "$n" ]; do
-		pct=$(( i * 100 / n )) # calculating progress percentage
-		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
-		else
-			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
-		fi
-		echo "$pct"
-		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
-		i=$((i + 1))
-		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
-	dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update, Sudo user addition & Add SSH key." 15 100 
+export NCURSES_NO_UTF8_ACS=1
+sys_env() {
+msgs=("System Update...."  
+"System Upgrade...."
+     )
+commands=('apt-get update'
+'DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
+		)
+n=${#commands[@]}
+i=0
+while [ "$i" -le "$n" ]; do
+    pct=$(( i * 100 / n )) # calculating progress percentage
+    if [ $pct -eq 100 ]; then
+        echo -e "XXX\n100\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
+	else
+        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	fi
+    echo "$pct"
+    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+    i=$((i + 1))
+	sleep 1
+done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
+}
+uri_select() {
+	BACKTITLE="Wordpress Installation"
+	TITLE="Wordpress uri select"
+	MENU="Wordpress will be installed for"
+	OPTIONS=("a SUBDOMAIN" ""
+			 "a DOMAIN" "")
+
+	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+
+	clear
+	case $CHOICE in
+		"a SUBDOMAIN")
+				usel="1"
+				;;
+		"a DOMAIN")
+				usel="0"
+				;;
+	esac
+}
+dom_set() {
 	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	while true; do
-		fqdn=$(dialog --cr-wrap --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "\n\nEnter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
+		fqdn=$(dialog --cr-wrap --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$fqdn" ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Hostname cannot be empty" 15 100 
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 15 100 
 			continue
 		elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 15 100
 			continue
 		fi
 		hostnamectl set-hostname "$fqdn" && hostname -F /etc/hostname
@@ -47,19 +63,40 @@
 	hostname="$(hostname)"
 	domain="${hostname%%.*}"
 	ips=$(curl -s -X GET https://checkip.amazonaws.com)
-	#if grep -R "$ips" /etc/hosts; then
-	#	sed -i "s/.*$ips.*/$ips $hostname $domain/" /etc/hosts
-	#else
-	#	echo -e "\n$ips $hostname $domain" >> /etc/hosts
-	#fi
 	if grep -R "$ips" /etc/hosts; then
 		sed -i "/$ips/d;/^$/d" /etc/hosts
-		echo -e "\n$ips $hostname $domain" >> /etc/hosts
+		echo -e "\n\n$ips $hostname $domain" >> /etc/hosts
 	else
-		echo -e "\n$ips $hostname $domain" >> /etc/hosts
+		echo -e "\n\n$ips $hostname $domain" >> /etc/hosts
 	fi
-	msgs=("\n\nGathering Time Zone info...."  
-	"\n\nSetting Time Zone..."
+}
+sub_set() {
+	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
+	while true; do
+		fqdn=$(dialog --cr-wrap --keep-tite --title Subdomain --ok-label "Continue" --nocancel --inputbox "\n\nEnter the Subdomain Name e.g. blog.example.com" 15 100 3>&1 1>&2 2>&3 3>&-)
+		if [[ -z "$fqdn" ]]; then
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\n Error! Subdomain cannot be empty" 15 100 
+			continue
+		elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Format incorrect, e.g. blog.example.com" 15 100
+			continue
+		fi
+		hostnamectl set-hostname "$fqdn" && hostname -F /etc/hostname
+		break
+	done
+	hostname="$(hostname)"
+	dom="${hostname%%.*}"
+	ips=$(curl -s -X GET https://checkip.amazonaws.com)
+	if grep -R "$ips" /etc/hosts; then
+		sed -i "/$ips/d;/^$/d" /etc/hosts
+		echo -e "\n\n$ips $hostname ${dom}" >> /etc/hosts
+	else
+		echo -e "\n\n$ips $hostname ${dom}" >> /etc/hosts
+	fi
+}
+tz_data() {
+	msgs=("Gathering Time Zone info...."  
+	"Setting Time Zone..."
 		 )
 	commands=('ln -snf /usr/share/zoneinfo/$(curl -s https://ipapi.co/timezone) /etc/localtime'
 	'DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata'
@@ -78,57 +115,67 @@
 		i=$((i + 1))
 		sleep 1
 	done | dialog --cr-wrap --keep-tite --title "Time Zone Configuration" --gauge "\n\nGathering Time Zone info...." 15 100 0
-	# Adding another sudo user apart from root. Root credentials can be security risk.
+}
+create_usr() {
 	while true; do
 		uname=$(dialog --cr-wrap --keep-tite --title "Username" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your username" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$uname" ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\n Error! Username cannot be empty" 15 100
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username cannot be empty" 15 100
 			continue
 		elif grep "${uname}" /etc/passwd >/dev/null 2>&1; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Username exists, use another name" 15 100
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Username exists, use another name" 15 100
 			continue
 		fi
 		adduser --gecos "" --disabled-password "$uname" >/dev/null 2>&1
 		break
 	done
-	pword=$(dialog --cr-wrap --keep-tite --title "Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your password" 15 100 3>&1 1>&2 2>&3 3>&-)
-	msgs=( "\n\nCreating user..."
-	"\n\nAdding to sudoers list"
-	"\n\nDisabling sudo passwd prompt"
-		 )
-	commands=('chpasswd <<<"$uname:$pword"'
-	'usermod -a -G sudo "$uname"'
-	'echo "$uname ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/noprompt-$uname'
-			 )
-	n=${#commands[@]}
-	i=0
-	while [ "$i" -le "$n" ]; do
-		pct=$(( i * 100 / n )) # calculating progress percentage
-		if [ $pct -eq 100 ]; then
-			echo -e "XXX\n100\n\nUser $uname added!\nXXX" #if progress percentage is equal to 100% then show this message
-		else
-			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	while true; do
+		pword=$(dialog --cr-wrap --keep-tite --title "Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your password" 15 100 3>&1 1>&2 2>&3 3>&-)
+		if [[ -z "$uname" ]]; then
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Password cannot be empty" 15 100
+			continue
 		fi
-		echo "$pct"
-		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
-		i=$((i + 1))
-		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "Adding User" --gauge "\n\nCreating user..." 15 100 0
-	uhome=$(eval echo ~$uname)
+		msgs=( "Creating user..."
+		"Adding to sudoers list"
+		"Disabling sudo passwd prompt"
+			 )
+		commands=('chpasswd <<<"$uname:$pword"'
+		'usermod -a -G sudo "$uname"'
+		'echo "$uname ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/noprompt-$uname'
+				 )
+		n=${#commands[@]}
+		i=0
+		while [ "$i" -le "$n" ]; do
+			pct=$(( i * 100 / n )) # calculating progress percentage
+			if [ $pct -eq 100 ]; then
+				echo -e "XXX\n100\nUser $uname added!\nXXX" #if progress percentage is equal to 100% then show this message
+			else
+				echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+			fi
+			echo "$pct"
+			eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+			i=$((i + 1))
+			sleep 1
+		done | dialog --cr-wrap --keep-tite --title "Adding User" --gauge "\n\nCreating user..." 15 100 0
+		uhome=$(eval echo ~$uname)
+		break
+	done
+}
+ssh_conf() {
 	pubkey=$(dialog --cr-wrap --keep-tite --title "SSH Key" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your SSH Pubkey" 15 100 3>&1 1>&2 2>&3 3>&-)
-	msgs=("\n\nCreating user's SSH directory..."  
-	"\n\nSSH directory permission update... "
-	"\n\nAdding SSH pubkey..."
-	"\n\nSSH pubkey permission update...."
-	"\n\nChanging SSH directory ownership..."
-	"\n\nConfiguring ssshd_config file...."
-	"\n\nSystem update..."
+	msgs=("Creating user's SSH directory..."  
+	"SSH directory permission update... "
+	"Adding SSH pubkey..."
+	"SSH pubkey permission update...."
+	"Changing SSH directory ownership..."
+	"Configuring ssshd_config file...."
+	"System update..."
 		 )
-	commands=('mkdir $uhome/.ssh'
-	'chmod 700 $uhome/.ssh'
-	'printf "%s" "$pubkey" > $uhome/.ssh/authorized_keys'
-	'chmod 600 $uhome/.ssh/authorized_keys'
-	'chown -Rh "$uname:$uname" $uhome/.ssh'
+	commands=('mkdir ${uhome}/.ssh'
+	'chmod 700 ${uhome}/.ssh'
+	'printf "%s" "${pubkey}" > ${uhome}/.ssh/authorized_keys'
+	'chmod 600 ${uhome}/.ssh/authorized_keys'
+	'chown -Rh "${uname}:${uname}" ${uhome}/.ssh'
 	'sudo sed -i "s/^#*\PermitRootLogin\s.*$/PermitRootLogin no/;s/^#*\PubkeyAuthentication\s.*$/PubkeyAuthentication yes/;s/^#*\PasswordAuthentication\s.*$/PasswordAuthentication no/" /etc/ssh/sshd_config'
 	'sudo systemctl restart sshd'
 			 )
@@ -146,14 +193,15 @@
 		i=$((i + 1))
 		sleep 1
 	done | dialog --cr-wrap --keep-tite --title "User SSH Configuration" --gauge "\nCreating User's SSH Directory" 15 100 0
-	dialog --cr-wrap --keep-tite --title "Part II" --msgbox "\nNginx, Mariadb and PHP installation & configuration." 15 100
-	msgs=("\n\nPreparing system environment...."
-	"\n\nPreparing system environment...."
-	"\n\nPreparing system environment...."
+}
+sub_sys() {
+	msgs=("Preparing system environment...."
+	"Preparing system environment...."
+	"Preparing system environment...."
 		 )
-	commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/user_script -L -s'
-	'chmod +x $uhome/user_script'
-	'chown -Rh $uname:$uname $uhome/user_script'
+	commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/sub_script -L -s'
+	'chmod +x $uhome/sub_script'
+	'chown -Rh $uname:$uname $uhome/sub_script'
 			)
 	n=${#commands[@]}
 	i=0
@@ -169,4 +217,56 @@
 		i=$((i + 1))
 		sleep 1
 	done | dialog --cr-wrap --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 15 100 0
-	sudo -i -u "$uname" bash $uhome/user_script
+}
+dom_sys() {
+	msgs=("Preparing system environment...."
+	"Preparing system environment...."
+	"Preparing system environment...."
+		 )
+	commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/dom_script -L -s'
+	'chmod +x $uhome/dom_script'
+	'chown -Rh $uname:$uname $uhome/dom_script'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n ))
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\nSystem environment configured successfully\nXXX"
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1
+		i=$((i + 1))
+		sleep 1
+	done | dialog --cr-wrap --keep-tite --title "User Eenvironment" --gauge "Preparing system environment" 15 100 0
+}
+
+main() {	
+	dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
+	sys_env
+	dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update, Sudo user addition & Add SSH key." 15 100 
+	uri_select
+	if [[ "$usel" = 1 ]]; then
+		sub_set
+		tz_data
+		create_usr
+		ssh_conf
+		dialog --cr-wrap --keep-tite --title "Part II" --msgbox "\n\nNginx, Mariadb and PHP installation & configuration." 15 100
+		sub_sys
+		sudo -i -u "${uname}" bash ${uhome}/sub_script
+	elif [[ "$usel" = 0 ]]; then
+		dom_set
+		tz_data
+		create_usr
+		ssh_conf
+		dialog --cr-wrap --keep-tite --title "Part II" --msgbox "\n\nNginx, Mariadb and PHP installation & configuration." 15 100
+		dom_sys
+		sudo -i -u "${uname}" bash ${uhome}/dom_script
+	fi
+}
+{ apt-get -y install dialog
+	apt-get -y install jq
+	} > /dev/null 2>&1
+main
