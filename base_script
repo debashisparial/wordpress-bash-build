@@ -199,7 +199,7 @@ sub_sys() {
 	"Preparing system environment...."
 	"Preparing system environment...."
 		 )
-	commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/sub_script -L -s'
+	commands=('curl -o $uhome/sub_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/sub_script -L -s'
 	'chmod +x $uhome/sub_script'
 	'chown -Rh $uname:$uname $uhome/sub_script'
 			)
@@ -223,7 +223,7 @@ dom_sys() {
 	"Preparing system environment...."
 	"Preparing system environment...."
 		 )
-	commands=('curl -o $uhome/user_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/dom_script -L -s'
+	commands=('curl -o $uhome/sub_script https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/dom_script -L -s'
 	'chmod +x $uhome/dom_script'
 	'chown -Rh $uname:$uname $uhome/dom_script'
 			)
