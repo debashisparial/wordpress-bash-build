@@ -260,7 +260,6 @@ phpini_config() {
 	mem_limit=""
 	max_fil=""
 	max_pos=""
-	max_upload=""
 	# open fd
 	exec 3>&1
 
@@ -277,7 +276,6 @@ phpini_config() {
 			"Memory Limit:"       3 1   "$mem_limit"    3 20 15 0 \
 			"Max File Size:"      4 1   "$max_fil"      4 20 15 0 \
 			"Max Post Size:"      5 1   "$max_pos"      5 20 15 0 \
-			"Max File Size:"      6 1   "$max_upload"   6 20 15 0 \
 	2>&1 1>&3)
 	# close fd
 	exec 3>&-
