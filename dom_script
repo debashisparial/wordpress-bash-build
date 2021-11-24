@@ -448,7 +448,10 @@ wp_install() {
 	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nWP Cli download" 10 100 0
 }
 ssl_install() {
-	msgs=('\n\nSnap Core installation'
+	msgs=('\n\nNginx stopped...'
+	'\n\nNginx pid refreshed...'
+	'\n\nNginx started...
+	'\n\nSnap Core installation'
 	'\n\nSnap Core refresh'
 	'\n\nCertbot installation'
 	'\n\nCertbot installation'
@@ -457,7 +460,10 @@ ssl_install() {
 	'\n\nNginx pid refreshed...'
 	'\n\nNginx started...'
 		)
-	commands=( 'sudo DEBIAN_FRONTEND=noninteractive snap install core'
+	commands=( 'sudo systemctl stop nginx'
+	'sudo rm /run/nginx.pid'
+	'sudo systemctl start nginx'
+	'sudo DEBIAN_FRONTEND=noninteractive snap install core'
 	'sudo snap refresh core'
 	'sudo DEBIAN_FRONTEND=noninteractive snap install --classic certbot'
 	'sudo ln -s /snap/bin/certbot /usr/bin/certbot'
