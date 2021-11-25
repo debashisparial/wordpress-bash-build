@@ -562,6 +562,7 @@ main() {
 		site_db
 		wp_install
 		sudo systemctl restart "${pver}-fpm"
+		ssl_install
 else
 		nginx_install
 		nginx_config
@@ -574,6 +575,7 @@ else
 		site_db
 		wp_install
 		sudo systemctl restart "${pver}-fpm"
+		ssl_install
 	fi
 }
 main
