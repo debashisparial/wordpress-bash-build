@@ -508,26 +508,23 @@ main() {
 		  -H "X-Auth-Email: ${cf_auth_email}" \
 		  -H "X-Auth-Key: ${cf_auth_key}" \
 		  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
-		  
-		# get the dns record id
 		a_id=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$zone" \
 		  -H "X-Auth-Email: ${cf_auth_email}" \
 		  -H "X-Auth-Key: ${cf_auth_key}" \
 		  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
-
 		ip_check=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$zone" \
 			  -H "X-Auth-Email: ${cf_auth_email}" \
 			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .content')
-		if [[ "$ips" != "$ip_check" ]]; then
-		# update the record
-			curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/${a_id}" \
+	        if [[ "$a_id" = null ]]; then 
+			curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/" \
 			  -H "X-Auth-Email: ${cf_auth_email}" \
 			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" \
 			  --data "{\"type\":\"A\",\"name\":\"$zone\",\"content\":\"$ips\",\"ttl\":1,\"proxied\":true}" | jq > /dev/null 2>&1
-		elif [[ "$ip_check" = null ]]; then 
-			curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/${a_id}" \
+		elif [[ "$ip_check" != "$ips" ]]; then
+		# update the record
+			curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/${a_id}" \
 			  -H "X-Auth-Email: ${cf_auth_email}" \
 			  -H "X-Auth-Key: ${cf_auth_key}" \
 			  -H "Content-Type: application/json" \
