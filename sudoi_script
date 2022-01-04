@@ -278,7 +278,8 @@ php-fpm_install() {
 	BACKTITLE="Wordpress Installation"
 	TITLE="PHP-fpm Installation"
 	MENU="Choose one of the following Mariadb versions:"
-	OPTIONS=("PHP 8.0" ""
+	OPTIONS=("PHP 8.1" ""
+			"PHP 8.0" ""
 			 "PHP 7.4" ""
 			 "PHP 7.3" "" )
 
