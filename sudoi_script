@@ -1,0 +1,551 @@
+#!/usr/bin/env bash
+# Purpose - Script to create a wordpress site on Ubuntu using Nginx, Mariadb and PHP
+# Author - Debashis Parial under GPL v3.0+
+# ------------------------------------------------------------------
+# Wordpress Installation
+
+export NCURSES_NO_UTF8_ACS=1
+############################ Nginx Installation #############################################################
+ips=$(curl -s -X GET https://checkip.amazonaws.com)
+uname="$(whoami)"
+uhome=$(eval echo ~$uname)
+wproc=$(nproc --all)
+wconn=$(ulimit -n)
+wconn=$(($wproc*$wconn))
+sys_env() {
+msgs=("System Update...."  
+"System Upgrade...."
+     )
+commands=('sudo apt-get update'
+'sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
+		)
+n=${#commands[@]}
+i=0
+while [ "$i" -le "$n" ]; do
+    pct=$(( i * 100 / n )) # calculating progress percentage
+    if [ $pct -eq 100 ]; then
+        echo -e "XXX\n100\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
+	else
+        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	fi
+    echo "$pct"
+    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+    i=$((i + 1))
+	sleep 1
+done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
+}
+dom_select() {
+	while true; do
+		domain=$(dialog --cr-wrap --keep-tite --title "Domain/Subdomain" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your domain/subdomain name" 15 100 3>&1 1>&2 2>&3 3>&-)
+		if [[ -z "$domain" ]]; then
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Domain cannot be empty" 15 100
+			continue
+		fi
+		cname="www.${domain}"
+		break
+	done
+}
+nginx_install() {
+	msgs=( "\n\nSystem update started...."
+	"\n\nNginx repo added...."
+	"\n\nSystem update..."
+	"\n\nSystem upgrade in progress..."
+	"\n\nNginx Extras with cache-purge installation initiated..."
+	"\n\nInitiating Nginx...."
+	"\n\nInitiating Nginx...."
+	"\n\nInitiating Nginx...."
+	"\n\nNginx initiated successfully..."
+		 )
+	commands=(
+	'sudo apt-get update'
+	'sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:ondrej/nginx'
+	'sudo apt-get update'
+	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
+	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install nginx'
+	'sudo systemctl enable nginx'
+	'sudo systemctl start nginx'
+	'sudo systemctl restart nginx'
+	'sudo systemctl reload nginx'
+			 )
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nNginx install status - success!\nXXX" #if progress percentage is equal to 100% then show this message
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Nginx Installation" --gauge "\n\nSystem Update..." 10 100 0
+}
+nginx_config() {
+	msgs=( "\n\nNginx configuration file..."
+	"\n\nNginx config updated...."
+	"\n\nNginx reload..."
+	"\n\nNginx restart..."
+		 )
+	commands=(
+	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/nginx.conf -O /etc/nginx/nginx.conf'
+	'sudo sed -i "s/\(user \).*/\1${uname};/;s/\(worker_processes \).*/\1${wproc};/;s/\(worker_connections \).*/\1${wconn};/" /etc/nginx/nginx.conf'
+	'sudo systemctl reload nginx'
+	'sudo systemctl restart nginx'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nNginx configuration complete!\nXXX" #if progress percentage is equal to 100% then show this message
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Nginx Configuration" --gauge "\n\nSystem update....." 10 100 0
+}
+firewall_install() {
+	msgs=( "\n\nSystem update started...."
+	"\n\nUFW installation started...."
+	"\n\nAllow TCP Port 80/443"
+	"\n\nAllow SSH Port 22"
+	"\\n\nUFW enabled...."
+	"\n\nUFW reload...."
+	"\n\nFail2ban installation started...."
+	"\n\nFail2ban enabled...."
+	"\n\nFail2ban enabled...."
+		 )
+	commands=(
+	"sudo apt-get update"
+	"sudo apt-get install ufw"                                                                            
+	"sudo ufw allow 'Nginx Full'"
+	"sudo ufw allow 'OpenSSH'"
+	"sudo ufw --force enable"
+	"sudo ufw reload"
+	"sudo apt-get -y install fail2ban"
+	"sudo systemctl enable fail2ban"
+	"sudo systemctl start fail2ban" 
+			 )
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nUFW & Fail2ban installed & activated successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "UFW & Fail2ban Installation" --gauge "\n\nSystem update....." 10 100 0
+}
+mariadb_install() {
+	BACKTITLE="Wordpress Installation"
+	TITLE="Mariadb Installation"
+	MENU="Choose one of the following Mariadb versions:"
+
+	OPTIONS=("Mariadb 10.6" ""
+		 "Mariadb 10.5" ""
+		 "Mariadb 10.4" ""
+		 "Mariadb 10.3" "")
+
+	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+
+	clear
+	case $CHOICE in
+		"Mariadb 10.6")
+				mver=10.6
+				;;
+		"Mariadb 10.5")
+				mver=10.5
+				;;
+		"Mariadb 10.4")
+				mver=10.4
+				;;
+		"Mariadb 10.3")
+				mver=10.3
+				;;
+	esac
+	msgs=( "\n\nMariadb repo download"
+	"\n\nMariadb repo setup..."
+	"\n\nSystem update..."
+	"\n\nInstalling Mariadb"
+		 )
+	commands=(
+	'curl -LO -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup'
+	'sudo bash mariadb_repo_setup -- --mariadb-server-version="\""${mver}"\""'
+	'sudo apt-get -y update'
+	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server'
+			 )
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nMariadb installed successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Mariadb Installation" --gauge "\n\nMariadb repo download" 10 100 0
+}
+mariadb_secure() {
+	msgs=('\n\nDisallow root login remotely'
+	'\n\nRemove anonymous users'
+	'\n\nRemove test database and access to it'
+	'\n\nReload privilege tables'
+	'\n\nInitializing Mariadb...'
+	'\n\nRestart Mariadb'
+		)
+	commands=('sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"'
+	'sudo mysql -e "DELETE FROM mysql.user WHERE User='';"'
+	'sudo mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';"'
+	'sudo mysql -e "FLUSH PRIVILEGES;"'
+	'sudo systemctl enable mariadb'
+	'sudo systemctl restart mariadb'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\nMariadb secure installation completed!\nXXX"
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Mariadb Secure Installation" --gauge "\n\nDisallow root login remotely" 10 100 0
+}
+php-fpm_install() {
+	BACKTITLE="Wordpress Installation"
+	TITLE="PHP-fpm Installation"
+	MENU="Choose one of the following Mariadb versions:"
+	OPTIONS=("PHP 8.0" ""
+			 "PHP 7.4" ""
+			 "PHP 7.3" "" )
+
+	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+
+	clear
+	case $CHOICE in
+		"PHP 8.1")
+				pvar="8.1"
+				;;
+		"PHP 8.0")
+				pvar="8.0"
+				;;
+		"PHP 7.4")
+				pvar="7.4"
+				;;
+		"PHP 7.3")
+				pvar="7.3"
+				;;
+	esac
+	pver="php${pvar}"
+	pfpm="${pver}-fpm"
+	msgs=( "\n\nSystem update started...."
+	"\n\nPHP repo added...."
+	"\n\nSystem update..."
+	"\n\nSystem upgrade in progress..."
+	"\n\nPHP-fpm installation initiated..."
+	"\n\nStarting PHP-fpm...."
+	"\n\nPHP-fpm started successfully..."
+		 )
+	commands=(
+	'sudo apt-get update'
+	'sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:ondrej/php'
+	'sudo apt-get update'
+	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
+	'sudo apt-get -y install "${pfpm}" "${pver}-common" php-pear "${pver}-dev" "${pver}-curl" "${pver}-xmlrpc" "${pver}-cli" "${pver}-mbstring" "${pver}-gd" "${pver}-intl" "${pver}-mysql" "${pver}-imagick" "${pver}-opcache" "${pver}-soap" "${pver}-redis" "${pver}-zip" "${pver}-imap" "${pver}-xml"'
+	'sudo systemctl restart "${pfpm}"'
+	'sudo systemctl restart "${pfpm}"'
+			 )
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\nPHP-fpm installed successfully!\nXXX" #if progress percentage is equal to 100% then show this message
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "PHP-fpm Installation" --gauge "\n\nSystem update....." 10 100 0
+}
+phpini_config() {
+	exe_time=""
+	in_vars=""
+	mem_limit=""
+	max_fil=""
+	max_pos=""
+	# open fd
+	exec 3>&1
+
+	# Store data to $pini variable
+	pini=$(dialog --cr-wrap \
+		--ok-label "Submit" \
+		--keep-tite \
+		--title "php.ini configure" \
+		--nocancel \
+		--form "Configure php.ini" \
+	15 100 0 \
+			"Execution Time:"     1 1   "$exe_time"     1 20 15 0\
+			"Input Variables:"    2 1   "$in_vars"      2 20 15 0 \
+			"Memory Limit:"       3 1   "$mem_limit"    3 20 15 0 \
+			"Max File Size:"      4 1   "$max_fil"      4 20 15 0 \
+			"Max Post Size:"      5 1   "$max_pos"      5 20 15 0 \
+	2>&1 1>&3)
+	# close fd
+	exec 3>&-
+	maxex=$( echo "$pini" | sed -n '1p' )
+	invars=$( echo "$pini" | sed -n '2p' )
+	memlim=$( echo "$pini" | sed -n '3p' )
+	maxfil=$( echo "$pini" | sed -n '4p' )
+	maxpos=$( echo "$pini" | sed -n '5p' )
+	sudo sed -i "/^${maxex}/!s/^;*\(max_execution_time = \).*/\1${maxex}/
+			/^${invars}/!s/^;*\(max_input_vars = \).*/\1${invars}/
+			/^${memlim}/!s/^;*\(memory_limit = \).*/\1${memlim}M/
+			/^${maxfil}/!s/^;*\(upload_max_filesize = \).*/\1${maxfil}/
+			/^${maxpos}/!s/^;*\(post_max_size = \).*/\1${maxpos}/" /etc/php/${pvar}/fpm/php.ini
+	sudo sed -i -e "s/www-data/${uname}/g" -e "/listen.mode = 0660/ s/^;//" /etc/php/${pvar}/fpm/pool.d/www.conf
+}
+site_dir() {
+	msgs=("\n\nCreating domain directory"
+	"\n\nCreating domain logs directory"
+	"\n\nChanging domain directory permissions"
+	"\n\nConfiguring sites-available"
+	"\n\nProcessing sites-available"
+	"\n\nCreating symlinks"
+	"\n\nReload Nginx"
+	"\n\nRestart Nginx"
+		)
+	commands=('mkdir ${domain}'
+	'mkdir ${domain}/logs'
+	'chmod -R 755 ${domain}'
+	'sudo wget -q https://raw.githubusercontent.com/debashisparial/wordpress-bash-build/main/server.conf -O /etc/nginx/sites-available/${domain}'
+	'sudo sed -i -e "s/tld/${domain}/g" -e "s#userhome#${uhome}#g" -e "s/pver/${pver}/g" /etc/nginx/sites-available/${domain}'
+	'sudo ln -s /etc/nginx/sites-available/"$domain" /etc/nginx/sites-enabled/"$domain"'
+	'sudo systemctl reload nginx'
+	'sudo systemctl restart nginx'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\nDomain directory created successfully!\nXXX"
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "\n\nCreating domain directory" 10 100 0
+}
+nam_db() {
+	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
+	vnum=$(shuf -i 8-11 -n 1)
+	sfx=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
+	namdb="${pfx}_${sfx}"
+	echo "$namdb"
+}
+use_db() {
+	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
+	vnum=$(shuf -i 8-11 -n 1)
+	sfx=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
+	usedb="${pfx}_${sfx}"
+	echo "$usedb"
+}
+site_db() {
+	dbname=$(nam_db)
+	userdb=$(use_db)
+	vnum=$(shuf -i 12-15 -n 1)
+	passdb=$(openssl rand -base64 32 | tr -d /=+ | cut -c -"$vnum")
+	msgs=('\n\nSite database created'
+	'\n\nDatabase user created'
+	'\n\nAll privileges granted on database to user'
+	'\n\nReload privilege tables'
+	'\n\nRestart Mariadb'
+		)
+	commands=('sudo mysql -e "CREATE DATABASE ${dbname};"'
+	'sudo mysql -e "CREATE USER \"${userdb}\"@\"localhost\" IDENTIFIED BY \"${passdb}\";"'
+	'sudo mysql -e "GRANT ALL PRIVILEGES ON ${dbname}.* TO \"${userdb}\"@\"localhost\";"'
+	'sudo mysql -e "FLUSH PRIVILEGES;"'
+	'sudo systemctl restart mariadb'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nSite database creation successful!!\nXXX"
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSite database created" 10 100 0
+}
+wp_install() {
+	while true; do
+	  site_title=$(dialog --cr-wrap --keep-tite --title "Site Title" --ok-label "Continue" --nocancel --inputbox "Enter Site Title" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  if [[ -z "$site_title" ]]; then
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Site Title cannot be empty" 10 100 
+		continue
+	  fi
+	  break
+	done
+	while true; do
+	  admin_user=$(dialog --cr-wrap --keep-tite --title "Admin Username" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin Username" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  if [[ -z "$admin_user" ]]; then
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Admin Username cannot be empty" 10 100 
+		continue
+	  fi
+	  break
+	done
+	pw_is_valid () {
+        local avoid='[<>`"'"'"'~]'
+        [ "${#1}" -ge 12 ] &&
+        [[ $1 =~ [[:upper:]] ]] &&
+        [[ $1 =~ [[:lower:]] ]] &&
+        [[ $1 =~ [[:digit:]] ]] &&
+        [[ $1 =~ [[:punct:]] ]] &&
+        [[ ! $1 =~ $avoid ]]
+	}
+	while true; do
+	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 12 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 15 100 3>&1 1>&2 2>&3 3>&-)
+	  if [[ -z "$admin_pass" ]]; then
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Password cannot be empty" 15 100 
+		continue
+	  elif ! pw_is_valid "${admin_pass}"; then
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
+		continue
+	  fi
+	  break
+	done
+	while true; do
+	  admin_mail=$(dialog --cr-wrap --keep-tite --title "Admin Email" --ok-label "Continue" --nocancel --inputbox "Enter Wordpress Admin email" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  if [[ -z "$admin_mail" ]]; then
+		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Admin Email cannot be empty" 10 100 
+		continue
+	  fi
+	  break
+	done
+	msgs=('\n\nWP Cli download...'
+	'\n\nWP Cli permissions update....'
+	'\n\nWP Cli Moved directory'
+	'\n\nChanged to domain directory...'
+	'\n\nWordpress core download...'
+	'\n\nDatabase connection established'
+	'\n\nWordpress Installation initiated...'
+	'Nginx reload....'
+	'Nginx restarted....'
+	'Php-fpm restarted...'
+	'Php-fpm reload.....'
+		)
+	commands=("curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
+	"chmod +x wp-cli.phar"
+	"sudo mv wp-cli.phar /usr/local/bin/wp"
+	"cd ~/$domain/"
+	"wp core download"
+	"wp core config --dbname=$dbname --dbuser=$userdb --dbpass=$passdb"
+	"wp core install --url=${domain} --title=${site_title} --admin_user=${admin_user} --admin_password='${admin_pass}' --admin_email=${admin_mail}"
+	"sudo systemctl reload nginx"
+	"sudo systemctl restart nginx"
+	"sudo systemctl restart ${pfpm}"
+	"sudo systemctl reload ${pfpm}"
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nWordpress installed successfully!\nXXX"
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nWP Cli download" 10 100 0
+}
+ssl_install() {
+	msgs=('\n\nNginx stopped...'
+	'\n\nNginx pid refreshed...'
+	'\n\nNginx started...
+	'\n\nSnap Core installation'
+	'\n\nSnap Core refresh'
+	'\n\nCertbot installation'
+	'\n\nCertbot installation'
+	'\n\nLetsEncrypt SSl installation'
+	'\n\nNginx stopped...'
+	'\n\nNginx pid refreshed...'
+	'\n\nNginx started...'
+		)
+	commands=( 'sudo systemctl stop nginx'
+	'sudo rm /run/nginx.pid'
+	'sudo systemctl start nginx'
+	'sudo DEBIAN_FRONTEND=noninteractive snap install core'
+	'sudo snap refresh core'
+	'sudo DEBIAN_FRONTEND=noninteractive snap install --classic certbot'
+	'sudo ln -s /snap/bin/certbot /usr/bin/certbot'
+	'sudo certbot -n --nginx --agree-tos --no-eff-email --cert-name "${domain}" -d "${domain}","${cname}" --register-unsafely-without-email --redirect'
+	'sudo systemctl stop nginx'
+	'sudo rm /run/nginx.pid'
+	'sudo systemctl start nginx'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\n\nLetsEncrypt SSL installation complete!\nXXX"
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 2
+	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSnap Core installation" 10 100 0
+}	
+main() {
+		sys_env
+		dom_select
+		nginx_install
+		nginx_config
+		firewall_install
+		mariadb_install
+		mariadb_secure
+		php-fpm_install
+		phpini_config
+		site_dir
+		site_db
+		wp_install
+		sudo systemctl restart "${pfpm}"
+		ssl_install
+}
+{ sudo apt-get -y install dialog
+	sudo apt-get -y install jq
+	} > /dev/null 2>&1
+main
