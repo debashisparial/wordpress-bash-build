@@ -34,6 +34,29 @@ while [ "$i" -le "$n" ]; do
 	sleep 1
 done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
 }
+host_set() {
+	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
+	while true; do
+		fqdn=$(dialog --cr-wrap --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
+		if [[ -z "$fqdn" ]]; then
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 15 100 
+			continue
+		elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
+			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 15 100
+			continue
+		fi
+		sudo hostnamectl set-hostname "$fqdn" && sudo hostname -F /etc/hostname
+		break
+	done
+	hostname="$(hostname)"
+	trail="${hostname%%.*}"
+	if grep -R "$ips" /etc/hosts; then
+		sudo sed -i "/$ips/d;/^$/d" /etc/hosts
+		sudo "echo -e '\n\n$ips $hostname $trail' >> /etc/hosts"
+	else
+		sudo "echo -e '\n\n$ips $hostname $trail' >> /etc/hosts"
+	fi
+}
 dom_select() {
 	while true; do
 		domain=$(dialog --cr-wrap --keep-tite --title "Domain/Subdomain" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your domain/subdomain name" 15 100 3>&1 1>&2 2>&3 3>&-)
@@ -44,6 +67,28 @@ dom_select() {
 		cname="www.${domain}"
 		break
 	done
+}
+tz_data() {
+	msgs=("Gathering Time Zone info...."  
+	"Setting Time Zone..."
+		 )
+	commands=('sudo ln -snf /usr/share/zoneinfo/$(curl -s https://ipapi.co/timezone) /etc/localtime'
+	'sudo DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata'
+			)
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+		pct=$(( i * 100 / n )) # calculating progress percentage
+		if [ $pct -eq 100 ]; then
+			echo -e "XXX\n100\nTime Zone set to server time zone.\nXXX" #if progress percentage is equal to 100% then show this message
+		else
+			echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+		fi
+		echo "$pct"
+		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
+		i=$((i + 1))
+		sleep 1
+	done | dialog --cr-wrap --keep-tite --title "Time Zone Configuration" --gauge "\n\nGathering Time Zone info...." 15 100 0
 }
 nginx_install() {
 	msgs=( "\n\nSystem update started...."
@@ -530,8 +575,12 @@ ssl_install() {
 	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSnap Core installation" 10 100 0
 }	
 main() {
+		dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
 		sys_env
+		dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update
+		host_set
 		dom_select
+		tz_data
 		nginx_install
 		nginx_config
 		firewall_install
