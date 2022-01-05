@@ -593,7 +593,6 @@ main() {
 		site_db
 		wp_install
 		sudo systemctl restart "${pfpm}"
-		ssl_install
 }
 { sudo apt-get -y install dialog
 	sudo apt-get -y install jq
