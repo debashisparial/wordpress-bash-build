@@ -576,6 +576,7 @@ ssl_install() {
 	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSnap Core installation" 10 100 0
 }	
 main() {
+		sudo apt-get -y install dialog > /dev/null 2>&1
 		dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
 		sys_env
 		dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update." 15 100
@@ -594,7 +595,4 @@ main() {
 		wp_install
 		sudo systemctl restart "${pfpm}"
 }
-{ sudo apt-get -y install dialog
-	sudo apt-get -y install jq
-	} > /dev/null 2>&1
 main
