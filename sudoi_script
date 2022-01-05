@@ -95,6 +95,8 @@ nginx_install() {
 	"\n\nNginx repo added...."
 	"\n\nSystem update..."
 	"\n\nSystem upgrade in progress..."
+	"\n\nModifying sources list"
+	"\n\nSystem update..."
 	"\n\nNginx Extras with cache-purge installation initiated..."
 	"\n\nInitiating Nginx...."
 	"\n\nInitiating Nginx...."
@@ -106,7 +108,9 @@ nginx_install() {
 	'sudo DEBIAN_FRONTEND=noninteractive add-apt-repository -y ppa:ondrej/nginx'
 	'sudo apt-get update'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade'
-	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install nginx'
+	'sudo sed -i 's/^#*\s*//g' /etc/apt/sources.list.d/ondrej-ubuntu-nginx-focal.list'
+	'sudo apt-get update'
+	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y install nginx-extras'
 	'sudo systemctl enable nginx'
 	'sudo systemctl start nginx'
 	'sudo systemctl restart nginx'
