@@ -590,9 +590,6 @@ main() {
 		mariadb_secure
 		php-fpm_install
 		phpini_config
-		site_dir
-		site_db
-		wp_install
 		sudo systemctl restart "${pfpm}"
 }
 main
