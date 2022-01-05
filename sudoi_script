@@ -13,9 +13,9 @@ wproc=$(nproc --all)
 wconn=$(ulimit -n)
 wconn=$(($wproc*$wconn))
 sys_env() {
-	msgs=("System Update...."  
-	"System Upgrade...."
-	"Dialog Installation...."
+	msgs=("\n\nSystem Update...."  
+	"\n\nSystem Upgrade...."
+	"\n\nDialog Installation...."
 	     )
 	commands=('sudo apt-get update'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
@@ -26,7 +26,7 @@ sys_env() {
 	while [ "$i" -le "$n" ]; do
 	    pct=$(( i * 100 / n )) # calculating progress percentage
 	    if [ $pct -eq 100 ]; then
-		echo -e "XXX\n100\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
+		echo -e "XXX\n100\n\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
 	    else
 		echo -e "XXX\n$i\n${msgs[i]}\nXXX"
 	    fi
@@ -39,12 +39,12 @@ sys_env() {
 host_set() {
 	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	while true; do
-		fqdn=$(whiptail --title FQDN --ok-button "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
+		fqdn=$(whiptail --title FQDN --ok-button "Continue" --nocancel --inputbox "\n\nEnter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$fqdn" ]]; then
-			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 15 100 
+			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Hostname cannot be empty" 15 100 
 			continue
 		elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
-			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n Error! Format incorrect" 15 100
+			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
 			continue
 		fi
 		sudo hostnamectl set-hostname "$fqdn" && sudo hostname -F /etc/hostname
@@ -63,7 +63,7 @@ dom_select() {
 	while true; do
 		domain=$(whiptail --title "Domain/Subdomain" --ok-button "Continue" --nocancel --inputbox "\n\nEnter your domain/subdomain name" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$domain" ]]; then
-			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n Error! Domain cannot be empty" 15 100
+			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Domain cannot be empty" 15 100
 			continue
 		fi
 		cname="www.${domain}"
