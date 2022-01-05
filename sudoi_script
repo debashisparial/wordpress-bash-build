@@ -15,9 +15,11 @@ wconn=$(($wproc*$wconn))
 sys_env() {
 	msgs=("System Update...."  
 	"System Upgrade...."
+	"Dialog Installation...."
 	     )
 	commands=('sudo apt-get update'
 	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
+	'sudo apt-get -y install dialog'
 		)
 	n=${#commands[@]}
 	i=0
@@ -32,17 +34,17 @@ sys_env() {
 	    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands
 	    i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
+	done | whiptail --title "System Environment" --gauge "System Update...." 15 100 0
 }
 host_set() {
 	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
 	while true; do
-		fqdn=$(dialog --cr-wrap --keep-tite --title FQDN --ok-label "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
+		fqdn=$(whiptail --title FQDN --ok-button "Continue" --nocancel --inputbox "Enter Fully Qualified Domain Name (FQDN)" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$fqdn" ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 15 100 
+			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n Error! Hostname cannot be empty" 15 100 
 			continue
 		elif [[ ! "${fqdn}" =~ ${pattern} ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Format incorrect" 15 100
+			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n Error! Format incorrect" 15 100
 			continue
 		fi
 		sudo hostnamectl set-hostname "$fqdn" && sudo hostname -F /etc/hostname
@@ -59,9 +61,9 @@ host_set() {
 }
 dom_select() {
 	while true; do
-		domain=$(dialog --cr-wrap --keep-tite --title "Domain/Subdomain" --ok-label "Continue" --nocancel --inputbox "\n\nEnter your domain/subdomain name" 15 100 3>&1 1>&2 2>&3 3>&-)
+		domain=$(whiptail --title "Domain/Subdomain" --ok-button "Continue" --nocancel --inputbox "\n\nEnter your domain/subdomain name" 15 100 3>&1 1>&2 2>&3 3>&-)
 		if [[ -z "$domain" ]]; then
-			dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n Error! Domain cannot be empty" 15 100
+			whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n Error! Domain cannot be empty" 15 100
 			continue
 		fi
 		cname="www.${domain}"
@@ -88,7 +90,7 @@ tz_data() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 1
-	done | dialog --cr-wrap --keep-tite --title "Time Zone Configuration" --gauge "\n\nGathering Time Zone info...." 15 100 0
+	done | whiptail --title "Time Zone Configuration" --gauge "\n\nGathering Time Zone info...." 15 100 0
 }
 nginx_install() {
 	msgs=( "\n\nSystem update started...."
@@ -129,7 +131,7 @@ nginx_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Nginx Installation" --gauge "\n\nSystem Update..." 10 100 0
+	done | whiptail --title "Nginx Installation" --gauge "\n\nSystem Update..." 10 100 0
 }
 nginx_config() {
 	msgs=( "\n\nNginx configuration file..."
@@ -156,7 +158,7 @@ nginx_config() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Nginx Configuration" --gauge "\n\nSystem update....." 10 100 0
+	done | whiptail --title "Nginx Configuration" --gauge "\n\nSystem update....." 10 100 0
 }
 firewall_install() {
 	msgs=( "\n\nSystem update started...."
@@ -193,7 +195,7 @@ firewall_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "UFW & Fail2ban Installation" --gauge "\n\nSystem update....." 10 100 0
+	done | whiptail --title "UFW & Fail2ban Installation" --gauge "\n\nSystem update....." 10 100 0
 }
 mariadb_install() {
 	BACKTITLE="Wordpress Installation"
@@ -205,7 +207,7 @@ mariadb_install() {
 		 "Mariadb 10.4" ""
 		 "Mariadb 10.3" "")
 
-	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+	CHOICE=$(whiptail --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
 
 	clear
 	case $CHOICE in
@@ -246,7 +248,7 @@ mariadb_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Mariadb Installation" --gauge "\n\nMariadb repo download" 10 100 0
+	done | whiptail --title "Mariadb Installation" --gauge "\n\nMariadb repo download" 10 100 0
 }
 mariadb_secure() {
 	msgs=('\n\nDisallow root login remotely'
@@ -276,7 +278,7 @@ mariadb_secure() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Mariadb Secure Installation" --gauge "\n\nDisallow root login remotely" 10 100 0
+	done | whiptail --title "Mariadb Secure Installation" --gauge "\n\nDisallow root login remotely" 10 100 0
 }
 php-fpm_install() {
 	BACKTITLE="Wordpress Installation"
@@ -287,7 +289,7 @@ php-fpm_install() {
 			 "PHP 7.4" ""
 			 "PHP 7.3" "" )
 
-	CHOICE=$(dialog --cr-wrap --keep-tite --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
+	CHOICE=$(whiptail --backtitle "$BACKTITLE" --title "$TITLE" --nocancel --menu "$MENU" 15 100 0 "${OPTIONS[@]}" 2>&1 > /dev/tty)
 
 	clear
 	case $CHOICE in
@@ -336,7 +338,7 @@ php-fpm_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "PHP-fpm Installation" --gauge "\n\nSystem update....." 10 100 0
+	done | whiptail --title "PHP-fpm Installation" --gauge "\n\nSystem update....." 10 100 0
 }
 phpini_config() {
 	exe_time=""
@@ -407,7 +409,7 @@ site_dir() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Domain directory creation" --gauge "\n\nCreating domain directory" 10 100 0
+	done | whiptail --title "Domain directory creation" --gauge "\n\nCreating domain directory" 10 100 0
 }
 nam_db() {
 	pfx=$(shuf -zer -n2 {a..z} | tr -d '\0')
@@ -453,21 +455,21 @@ site_db() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSite database created" 10 100 0
+	done | whiptail --title "Site database configuration" --gauge "\n\nSite database created" 10 100 0
 }
 wp_install() {
 	while true; do
-	  site_title=$(dialog --cr-wrap --keep-tite --title "Site Title" --ok-label "Continue" --nocancel --inputbox "Enter Site Title" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  site_title=$(whiptail --title "Site Title" --ok-button "Continue" --nocancel --inputbox "Enter Site Title" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$site_title" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Site Title cannot be empty" 10 100 
+		whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Site Title cannot be empty" 10 100 
 		continue
 	  fi
 	  break
 	done
 	while true; do
-	  admin_user=$(dialog --cr-wrap --keep-tite --title "Admin Username" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin Username" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_user=$(whiptail --title "Admin Username" --ok-button "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin Username" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_user" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Admin Username cannot be empty" 10 100 
+		whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Admin Username cannot be empty" 10 100 
 		continue
 	  fi
 	  break
@@ -482,20 +484,20 @@ wp_install() {
         [[ ! $1 =~ $avoid ]]
 	}
 	while true; do
-	  admin_pass=$(dialog --cr-wrap --keep-tite --title "Admin Password" --ok-label "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 12 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 15 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_pass=$(whiptail --title "Admin Password" --ok-button "Continue" --nocancel --inputbox "\n\nEnter Wordpress Admin password\nMinimum 12 characters\nAt least One Upper case\nAt least One Lower Case\nAt least one number" 15 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_pass" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Password cannot be empty" 15 100 
+		whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Password cannot be empty" 15 100 
 		continue
 	  elif ! pw_is_valid "${admin_pass}"; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
+		whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\n\nError! Format incorrect" 15 100
 		continue
 	  fi
 	  break
 	done
 	while true; do
-	  admin_mail=$(dialog --cr-wrap --keep-tite --title "Admin Email" --ok-label "Continue" --nocancel --inputbox "Enter Wordpress Admin email" 10 100 3>&1 1>&2 2>&3 3>&-)
+	  admin_mail=$(whiptail --title "Admin Email" --ok-button "Continue" --nocancel --inputbox "Enter Wordpress Admin email" 10 100 3>&1 1>&2 2>&3 3>&-)
 	  if [[ -z "$admin_mail" ]]; then
-		dialog --cr-wrap --keep-tite --title "ERROR!!" --ok-label "Continue" --nocancel --msgbox "\nError! Admin Email cannot be empty" 10 100 
+		whiptail --title "ERROR!!" --ok-button "Continue" --nocancel --msgbox "\nError! Admin Email cannot be empty" 10 100 
 		continue
 	  fi
 	  break
@@ -537,7 +539,7 @@ wp_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nWP Cli download" 10 100 0
+	done | whiptail --title "Site database configuration" --gauge "\n\nWP Cli download" 10 100 0
 }
 ssl_install() {
 	msgs=('\n\nNginx stopped...'
@@ -577,13 +579,13 @@ ssl_install() {
 		eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
 		i=$((i + 1))
 		sleep 2
-	done | dialog --cr-wrap --keep-tite --title "Site database configuration" --gauge "\n\nSnap Core installation" 10 100 0
+	done | whiptail --title "Site database configuration" --gauge "\n\nSnap Core installation" 10 100 0
 }	
 main() {
-		sudo apt-get -y install dialog > /dev/null 2>&1
-		dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
+		sudo ln -sf /etc/newt/palette.original  /etc/alternatives/newt-palette
+		whiptail --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
 		sys_env
-		dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update." 15 100
+		whiptail --title "Part I" --ok-button "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update." 15 100
 		host_set
 		dom_select
 		tz_data
