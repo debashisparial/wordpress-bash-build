@@ -52,9 +52,9 @@ host_set() {
 	trail="${hostname%%.*}"
 	if grep -R "$ips" /etc/hosts; then
 		sudo sed -i "/$ips/d;/^$/d" /etc/hosts
-		sudo "echo -e '\n\n$ips $hostname $trail' >> /etc/hosts"
+		echo -e "\n\n$ips $hostname $trail" | sudo tee -a /etc/hosts
 	else
-		sudo "echo -e '\n\n$ips $hostname $trail' >> /etc/hosts"
+		echo -e "\n\n$ips $hostname $trail" | sudo tee -a /etc/hosts
 	fi
 }
 dom_select() {
