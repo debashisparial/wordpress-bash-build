@@ -50,7 +50,7 @@ host_set() {
 	done
 	hostname="$(hostname)"
 	trail="${hostname%%.*}"
-	if grep -R "$ips" /etc/hosts; then
+	if sudo grep -R "$ips" /etc/hosts; then
 		sudo sed -i "/$ips/d;/^$/d" /etc/hosts
 		echo -e "\n\n$ips $hostname $trail" | sudo tee -a /etc/hosts
 	else
