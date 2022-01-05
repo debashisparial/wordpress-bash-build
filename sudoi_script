@@ -590,6 +590,7 @@ main() {
 		mariadb_secure
 		php-fpm_install
 		phpini_config
+		site_dir
 		sudo systemctl restart "${pfpm}"
 }
 main
