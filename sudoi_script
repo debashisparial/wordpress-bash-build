@@ -578,7 +578,7 @@ ssl_install() {
 main() {
 		dialog --cr-wrap --keep-tite --title "Welcome" --msgbox "\n\nWordpress Installation with Ubuntu, Nginx, Mariadb & PHP alongwith LetsEncrypt SSL." 15 100 
 		sys_env
-		dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update
+		dialog --cr-wrap --keep-tite --title "Part I" --ok-label "Continue" --nocancel --msgbox "\n\nHostname addition, hosts file update, Time zone update." 15 100
 		host_set
 		dom_select
 		tz_data
