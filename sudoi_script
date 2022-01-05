@@ -13,26 +13,26 @@ wproc=$(nproc --all)
 wconn=$(ulimit -n)
 wconn=$(($wproc*$wconn))
 sys_env() {
-msgs=("System Update...."  
-"System Upgrade...."
-     )
-commands=('sudo apt-get update'
-'sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
+	msgs=("System Update...."  
+	"System Upgrade...."
+	     )
+	commands=('sudo apt-get update'
+	'sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade'
 		)
-n=${#commands[@]}
-i=0
-while [ "$i" -le "$n" ]; do
-    pct=$(( i * 100 / n )) # calculating progress percentage
-    if [ $pct -eq 100 ]; then
-        echo -e "XXX\n100\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
-	else
-        echo -e "XXX\n$i\n${msgs[i]}\nXXX"
-	fi
-    echo "$pct"
-    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands, 
-    i=$((i + 1))
-	sleep 1
-done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
+	n=${#commands[@]}
+	i=0
+	while [ "$i" -le "$n" ]; do
+	    pct=$(( i * 100 / n )) # calculating progress percentage
+	    if [ $pct -eq 100 ]; then
+		echo -e "XXX\n100\nSystem update success\nXXX" #if progress percentage is equal to 100% then show this message
+	    else
+		echo -e "XXX\n$i\n${msgs[i]}\nXXX"
+	    fi
+	    echo "$pct"
+	    eval "${commands[i]}" > /dev/null 2>&1 #eval the output of the commands
+	    i=$((i + 1))
+		sleep 1
+	done | dialog --cr-wrap --keep-tite --title "System Environment" --gauge "System Update...." 15 100 0
 }
 host_set() {
 	pattern="(^[^.]+\.[^.]+\.[^.]+$)"
@@ -538,7 +538,7 @@ wp_install() {
 ssl_install() {
 	msgs=('\n\nNginx stopped...'
 	'\n\nNginx pid refreshed...'
-	'\n\nNginx started...
+	'\n\nNginx started...'
 	'\n\nSnap Core installation'
 	'\n\nSnap Core refresh'
 	'\n\nCertbot installation'
