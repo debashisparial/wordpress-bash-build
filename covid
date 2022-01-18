@@ -1,0 +1,271 @@
+sudo -i
+
+hostnamectl set-hostname neo.covid.com
+
+hostname -F /etc/hostname
+
+sudo nano /etc/hosts
+
+127.1.0.1       localhost
+127.1.1.1       guest                                                    
+35.208.105.230  neo.covid.com neo
+
+dpkg-reconfigure tzdata
+
+sudo apt update
+sudo apt upgrade -y
+
+logout
+
+sudo apt update
+
+sudo add-apt-repository ppa:ondrej/nginx
+
+sudo apt update && sudo apt upgrade -y
+
+sudo nano /etc/apt/sources.list.d/ondrej-ubuntu-nginx-focal.list
+
+sudo sed -i 's/^#*\s*//g' /etc/apt/sources.list.d/ondrej-ubuntu-nginx-focal.list
+
+sudo apt update
+
+sudo apt install nginx-extras -y
+
+sudo nano /etc/nginx/nginx.conf
+
+                        user ashif;
+                        worker_processes 2;
+                        pid /run/nginx.pid;
+                        include /etc/nginx/modules-enabled/*.conf;
+
+                        events {
+                          worker_connections 2048;
+                          multi_accept on;
+                        }
+
+                        http {
+
+                          ##
+                          # Basic Settings
+                          ##
+
+                          sendfile on;
+                          tcp_nopush on;
+                          tcp_nodelay on;
+                          client_max_body_size 64m;
+                          client_body_timeout 30;
+                          client_header_timeout 30;
+                          send_timeout 30;
+                          keepalive_timeout 15;
+                          types_hash_max_size 2048;
+                          server_tokens off;
+                          add_header X-Frame-Options "SAMEORIGIN" always;
+                          add_header X-Content-Type-Options "nosniff" always;
+                          add_header X-Xss-Protection "1; mode=block" always;
+
+                          # server_names_hash_bucket_size 64;
+                          # server_name_in_redirect off;
+
+                          include /etc/nginx/mime.types;
+                          default_type application/octet-stream;
+
+                          ##
+                          # SSL Settings
+                          ##
+
+                          ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+                          ssl_prefer_server_ciphers on;
+
+                          ##
+                          # Logging Settings
+                          ##
+
+                          access_log /var/log/nginx/access.log;
+                          error_log /var/log/nginx/error.log;
+
+                          ##
+                          # Gzip Settings
+                          ##
+
+                          gzip on;
+                          gzip_disable "msie6";
+
+                          gzip_vary on;
+                          gzip_proxied any;
+                          gzip_comp_level 5;
+                          gzip_buffers 64 32k;
+                          # gzip_http_version 1.1;
+                          gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+                          ##
+                          # Virtual Host Configs
+                          ##
+
+                          include /etc/nginx/conf.d/*.conf;
+                          include /etc/nginx/sites-enabled/*;
+                        }
+
+
+                        #mail {
+                        #	# See sample authentication script at:
+                        #	# http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+                        # 
+                        #	# auth_http localhost/auth.php;
+                        #	# pop3_capabilities "TOP" "USER";
+                        #	# imap_capabilities "IMAP4rev1" "UIDPLUS";
+                        # 
+                        #	server {
+                        #		listen     localhost:110;
+                        #		protocol   pop3;
+                        #		proxy      on;
+                        #	}
+                        # 
+                        #	server {
+                        #		listen     localhost:143;
+                        #		protocol   imap;
+                        #		proxy      on;
+                        #	}
+                        #}
+
+sudo nginx -t
+
+sudo systemctl reload nginx
+
+sudo systemctl restart nginx
+
+sudo systemctl enable nginx
+
+sudo systemctl status nginx
+
+sudo apt install ufw                                                                            
+                                                                                                   AbCdEf$142536
+sudo ufw allow 'Nginx Full'
+sudo ufw allow 'OpenSSH'
+sudo ufw show added
+
+sudo ufw --force enable
+
+sudo ufw reload
+
+sudo ufw status verbose
+sudo apt install fail2ban -y
+
+sudo systemctl start fail2ban 
+
+sudo apt-get install software-properties-common dirmngr apt-transport-https
+sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el,s390x] https://mirror.rackspace.com/mariadb/repo/10.6/ubuntu focal main'
+
+sudo apt update
+sudo apt install mariadb-server -y
+
+sudo mysql_secure_installation
+
+sudo add-apt-repository ppa:ondrej/php -y
+
+sudo apt update && sudo apt upgrade -y	
+																		  
+sudo apt -y install php8.0-fpm php8.0-common php-pear php8.0-dev php8.0-curl php8.0-xmlrpc php8.0-cli php8.0-mbstring php8.0-gd php8.0-intl php8.0-mysql php8.0-imagick php8.0-opcache php8.0-soap php8.0-redis php8.0-zip php8.0-imap php8.0-xml
+
+sudo nano /etc/php/8.0/fpm/pool.d/www.conf
+// in place of www-data add ashif by using Ctrl\ and then add www-data and then add ashif and selecting option A
+
+user = ashif
+group = ashif
+listen.owner = ashif
+listen.group = ashif
+listen.mode = 0660    #uncomment it
+
+sudo systemctl reload php8.0-fpm
+
+sudo systemctl restart php8.0-fpm
+                                                                                                                 AbCdEf$142536
+sudo nano /etc/php/8.0/fpm/php.ini                                                                              
+
+cgi.fix_pathinfo=1
+max_execution_time = 180
+max_input_vars
+short_open_tag = Off
+upload_max_filesize =
+post_max_size =
+
+sudo php-fpm8.0 -t
+
+sudo systemctl reload php8.0-fpm 
+
+sudo systemctl restart php8.0-fpm
+
+php -m
+
+to show the list of added modules to php
+
+Creating the site ------------------------------------------------------------------------------------------------------------------------------------
+
+mkdir covid.com
+
+mkdir covid.com/logs																																																		
+chmod -R 755 covid.com                                                                                                	
+
+sudo nano /etc/nginx/sites-available/covid.com
+
+                  server {
+
+                      listen 80;
+                    listen [::]:80;
+                      server_name covid.com www.covid.com;
+
+                    access_log /home/ashif/covid.com/logs/access.log;
+                      error_log /home/ashif/covid.com/logs/error.log;
+
+                      root /home/ashif/covid.com/;
+                      index index.php;
+
+                      location / {
+                          try_files $uri $uri/ /index.php?$args; 
+                      }
+
+                      location ~ \.php$ {
+                          try_files $uri =404;
+                          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+                          fastcgi_pass unix:/run/php/php8.0-fpm.sock;
+                          fastcgi_index index.php;
+                          include fastcgi.conf;
+                      }
+                  }
+
+
+sudo ln -s /etc/nginx/sites-available/covid.com /etc/nginx/sites-enabled/covid.com
+
+sudo nginx -t
+                                                      
+sudo systemctl reload nginx
+
+sudo systemctl restart nginx
+
+sudo mysql -u root -p  
+
+sudo mysql -u from21ase -p							  
+                                                                                                         Ashifkhan9990
+CREATE DATABASE kazo_nihy;
+
+CREATE USER 'bido21det'@'%' IDENTIFIED BY 'bQ5uTL7p5ycE';
+
+GRANT ALL PRIVILEGES ON kazo_nihy.* TO 'bido21det'@'%';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, PROCESS, REFERENCES, INDEX, ALTER, SHOW DATABASES, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER, EVENT, TRIGGER ON *.* TO 'bido21det'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+
+exit;
+
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+php wp-cli.phar --info
+
+chmod +x wp-cli.phar
+
+sudo mv wp-cli.phar /usr/local/bin/wp
+
+cd ~/covid.com/
+
+wp core download
